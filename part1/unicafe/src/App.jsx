@@ -5,12 +5,15 @@ const Button = ({ handleClick, text }) => (
   <button onClick={handleClick}>{text}</button>
 )
 
-// Componente para una única línea de estadística
+// Componente StatisticLine renderizado como una fila de tabla (tr)
 const StatisticLine = ({ text, value }) => (
-  <p>{text} {value}</p>
+  <tr>
+    <td>{text}</td>
+    <td>{value}</td>
+  </tr>
 )
 
-// Componente Statistics que utiliza StatisticLine
+// Componente Statistics que organiza todo dentro de una tabla HTML
 const Statistics = (props) => {
   const total = props.good + props.neutral + props.bad
 
@@ -29,12 +32,16 @@ const Statistics = (props) => {
   return (
     <div>
       <h2>statistics</h2>
-      <StatisticLine text="good" value={props.good} />
-      <StatisticLine text="neutral" value={props.neutral} />
-      <StatisticLine text="bad" value={props.bad} />
-      <StatisticLine text="all" value={total} />
-      <StatisticLine text="average" value={average} />
-      <StatisticLine text="positive" value={${positive} %} />
+      <table>
+        <tbody>
+          <StatisticLine text="good" value={props.good} />
+          <StatisticLine text="neutral" value={props.neutral} />
+          <StatisticLine text="bad" value={props.bad} />
+          <StatisticLine text="all" value={total} />
+          <StatisticLine text="average" value={average} />
+          <StatisticLine text="positive" value={positive + ' %'} />
+        </tbody>
+      </table>
     </div>
   )
 }
