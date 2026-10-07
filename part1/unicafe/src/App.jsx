@@ -1,10 +1,21 @@
 import { useState } from 'react'
 
-// Componente Statistics definido FUERA del componente App
 const Statistics = (props) => {
   const total = props.good + props.neutral + props.bad
-  const average = total === 0 ? 0 : (props.good * 1 + props.neutral * 0 + props.bad * -1) / total
-  const positive = total === 0 ? 0 : (props.good / total) * 100
+
+  // Renderizado condicional: si no hay feedback, se muestra el mensaje alternativo
+  if (total === 0) {
+    return (
+      <div>
+        <h2>statistics</h2>
+        <p>No feedback given</p>
+      </div>
+    )
+  }
+
+  // Cálculos solo si ya hay feedback registrado
+  const average = (props.good * 1 + props.neutral * 0 + props.bad * -1) / total
+  const positive = (props.good / total) * 100
 
   return (
     <div>
@@ -20,7 +31,6 @@ const Statistics = (props) => {
 }
 
 const App = () => {
-  // El estado se mantiene en el componente raíz App
   const [good, setGood] = useState(0)
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
@@ -32,7 +42,6 @@ const App = () => {
       <button onClick={() => setNeutral(neutral + 1)}>neutral</button>
       <button onClick={() => setBad(bad + 1)}>bad</button>
 
-      {/* Invocación del componente Statistics pasando props */}
       <Statistics good={good} neutral={neutral} bad={bad} />
     </div>
   )
