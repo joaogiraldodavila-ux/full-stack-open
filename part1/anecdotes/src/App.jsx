@@ -12,32 +12,40 @@ const App = () => {
   ]
 
   const [selected, setSelected] = useState(0)
-
-  // Inicializa un arreglo de ceros con la misma longitud que 'anecdotes'
   const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0))
 
-  // Función para pasar a la siguiente anécdota
   const handleNext = () => {
     const randomIndex = Math.floor(Math.random() * anecdotes.length)
     setSelected(randomIndex)
   }
 
-  // Función para votar por la anécdota seleccionada
   const handleVote = () => {
-    // 1. Hacemos una copia del arreglo de votos para mantener la inmutabilidad
     const copy = [...votes]
-    // 2. Incrementamos en 1 el voto de la anécdota en la posición 'selected'
     copy[selected] += 1
-    // 3. Actualizamos el estado con la copia modificada
     setVotes(copy)
   }
 
+  // Obtenemos el número máximo de votos y el índice de esa anécdota
+  const maxVotes = Math.max(...votes)
+  const mostVotedIndex = votes.indexOf(maxVotes)
+
   return (
     <div>
+      <h1>Anecdote of the day</h1>
       <p>{anecdotes[selected]}</p>
       <p>has {votes[selected]} votes</p>
       <button onClick={handleVote}>vote</button>
       <button onClick={handleNext}>next anecdote</button>
+
+      <h1>Anecdote with most votes</h1>
+      {maxVotes === 0 ? (
+        <p>No votes yet</p>
+      ) : (
+        <>
+          <p>{anecdotes[mostVotedIndex]}</p>
+          <p>has {maxVotes} votes</p>
+        </>
+      )}
     </div>
   )
 }
