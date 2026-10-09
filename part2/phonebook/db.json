@@ -19,6 +19,12 @@
       "name": "Mary Poppendieck",
       "number": "39-23-6423122",
       "id": "4"
+    },
+    {
+      "name": "Joao Giraldo",
+      "number": "040-7654321",
+      "id": "Ltfkwb6FgIE"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

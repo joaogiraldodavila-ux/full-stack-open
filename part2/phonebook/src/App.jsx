@@ -1,40 +1,13 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const Filter = ({ value, onChange }) => (
-  <div>
-    filter shown with <input value={value} onChange={onChange} />
-  </div>
-)
-
-const PersonForm = ({ onSubmit, nameValue, onNameChange, numberValue, onNumberChange }) => (
-  <form onSubmit={onSubmit}>
-    <div>
-      name: <input value={nameValue} onChange={onNameChange} />
-    </div>
-    <div>
-      number: <input value={numberValue} onChange={onNumberChange} />
-    </div>
-    <div>
-      <button type="submit">add</button>
-    </div>
-  </form>
-)
-
-const Persons = ({ persons }) => (
-  <div>
-    {persons.map(person => (
-      <p key={person.id}>{person.name} {person.number}</p>
-    ))}
-  </div>
-)
-
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
 
+  // Cargar datos iniciales desde json-server (Ejercicio 2.11)
   useEffect(() => {
     axios
       .get('http://localhost:3001/persons')
@@ -43,58 +16,72 @@ const App = () => {
       })
   }, [])
 
-  const addName = (event) => {
+  // Manejador del envío del formulario (Ejercicio 2.12)
+  const addPerson = (event) => {
     event.preventDefault()
 
-    const nameExists = persons.some(
-      person => person.name.toLowerCase() === newName.trim().toLowerCase()
+    const personExists = persons.some(
+      p => p.name.toLowerCase() === newName.toLowerCase()
     )
 
-    if (nameExists) {
-      alert(newName + " is already added to phonebook")
+    if (personExists) {
+      alert(newName + " ya ha sido agregado a la libreta de teléfonos")
       return
     }
 
-    const nameObject = {
-      name: newName.trim(),
-      number: newNumber.trim(),
-      id: String(persons.length + 1)
+    const personObject = {
+      name: newName,
+      number: newNumber
     }
 
-    setPersons(persons.concat(nameObject))
-    setNewName('')
-    setNewNumber('')
+    axios
+      .post('http://localhost:3001/persons', personObject)
+      .then(response => {
+        setPersons(persons.concat(response.data))
+        setNewName('')
+        setNewNumber('')
+      })
   }
 
   const handleNameChange = (event) => setNewName(event.target.value)
   const handleNumberChange = (event) => setNewNumber(event.target.value)
   const handleFilterChange = (event) => setFilter(event.target.value)
 
-  const personsToShow = filter === ''
-    ? persons
-    : persons.filter(person => 
-        person.name.toLowerCase().includes(filter.toLowerCase())
-      )
+  const personsToShow = persons.filter(p =>
+    p.name.toLowerCase().includes(filter.toLowerCase())
+  )
 
   return (
     <div>
-      <h2>Phonebook</h2>
-      
-      <Filter value={filter} onChange={handleFilterChange} />
+      <h2>Libreta de Teléfonos</h2>
 
-      <h3>Add a new</h3>
-      
-      <PersonForm 
-        onSubmit={addName}
-        nameValue={newName}
-        onNameChange={handleNameChange}
-        numberValue={newNumber}
-        onNumberChange={handleNumberChange}
-      />
+      <div>
+        Buscar por nombre: <input value={filter} onChange={handleFilterChange} />
+      </div>
 
-      <h2>Numbers</h2>
-      
-      <Persons persons={personsToShow} />
+      <h3>Agregar nuevo contacto</h3>
+
+      <form onSubmit={addPerson}>
+        <div>
+          Nombre: <input value={newName} onChange={handleNameChange} />
+        </div>
+        <div>
+          Teléfono: <input value={newNumber} onChange={handleNumberChange} />
+        </div>
+        <div>
+          <button type="submit">Agregar</button>
+        </div>
+      </form>
+
+      <h3>Números</h3>
+
+      <ul>
+        {personsToShow.map(person => (
+          <li key={person.id}>
+            {person.name} {person.number}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
