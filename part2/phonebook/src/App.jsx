@@ -6,23 +6,27 @@ const App = () => {
   ]) 
   const [newName, setNewName] = useState('')
 
-  // Controlador para manejar el envío del formulario
   const addName = (event) => {
     event.preventDefault()
-    
-    // Creación del nuevo objeto persona
-    const nameObject = {
-      name: newName
+
+    // Validar si el nombre ya existe en el estado 'persons'
+    const nameExists = persons.some(
+      person => person.name.toLowerCase() === newName.trim().toLowerCase()
+    )
+
+    if (nameExists) {
+      alert(`${newName} is already added to phonebook`)
+      return
     }
 
-    // Actualización del estado agregando la nueva persona
+    const nameObject = {
+      name: newName.trim()
+    }
+
     setPersons(persons.concat(nameObject))
-    
-    // Limpiar el campo del input
     setNewName('')
   }
 
-  // Controlador para rastrear los cambios en el input
   const handleNameChange = (event) => {
     setNewName(event.target.value)
   }
