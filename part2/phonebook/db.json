@@ -24,6 +24,16 @@
       "name": "Joao Giraldo",
       "number": "040-7654321",
       "id": "Ltfkwb6FgIE"
+    },
+    {
+      "name": "Kai Dranzer",
+      "number": "12-46-526859",
+      "id": "n3Q4mmC8g-c"
+    },
+    {
+      "name": "Mc Pato",
+      "number": "040-5786244",
+      "id": "BmfnRfQVB7s"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
