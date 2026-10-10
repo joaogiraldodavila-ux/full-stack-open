@@ -21,14 +21,14 @@
       "id": "4"
     },
     {
-      "name": "Joao Giraldo",
-      "number": "040-7654321",
-      "id": "Ltfkwb6FgIE"
-    },
-    {
       "name": "Kai Dranzer",
       "number": "12-46-526859",
       "id": "n3Q4mmC8g-c"
+    },
+    {
+      "name": "Joao Giraldo",
+      "number": "049-5141274",
+      "id": "6qR_tk72yWk"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

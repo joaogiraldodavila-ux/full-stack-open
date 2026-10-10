@@ -11,10 +11,15 @@ const create = newObject => {
   return request.then(response => response.data)
 }
 
-// Nueva función para eliminar un contacto por su ID
 const remove = id => {
   const request = axios.delete(`${baseUrl}/${id}`)
   return request.then(response => response.data)
 }
 
-export default { getAll, create, remove }
+// Nueva función para actualizar un contacto existente
+const update = (id, newObject) => {
+  const request = axios.put(`${baseUrl}/${id}`, newObject)
+  return request.then(response => response.data)
+}
+
+export default { getAll, create, remove, update }

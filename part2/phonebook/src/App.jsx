@@ -16,30 +16,55 @@ const App = () => {
   }, [])
 
   const addPerson = (event) => {
-    event.preventDefault()
+  event.preventDefault()
 
-    const personExists = persons.some(
-      p => p.name.toLowerCase() === newName.toLowerCase()
+  // Buscamos si el contacto ya existe en el array
+  const existingPerson = persons.find(
+    p => p.name.toLowerCase() === newName.toLowerCase()
+  )
+
+  if (existingPerson) {
+    // Si ya existe, preguntamos si desea actualizar su número
+    const confirmUpdate = window.confirm(
+      `${newName} ya está agregado a la libreta de teléfonos, ¿desea reemplazar el número antiguo por el nuevo?`
     )
 
-    if (personExists) {
-      alert(newName + " ya ha sido agregado a la libreta de teléfonos")
-      return
-    }
+    if (confirmUpdate) {
+      const updatedPerson = { ...existingPerson, number: newNumber }
 
-    const personObject = {
-      name: newName,
-      number: newNumber
+      personService
+        .update(existingPerson.id, updatedPerson)
+        .then(returnedPerson => {
+          setPersons(
+            persons.map(p => p.id !== existingPerson.id ? p : returnedPerson)
+          )
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => {
+          alert(
+            `La información de ${newName} ya ha sido eliminada del servidor previamente.`
+          )
+          setPersons(persons.filter(p => p.id !== existingPerson.id))
+        })
     }
-
-    personService
-      .create(personObject)
-      .then(returnedPerson => {
-        setPersons(persons.concat(returnedPerson))
-        setNewName('')
-        setNewNumber('')
-      })
+    return
   }
+
+  // Si no existe, lo creamos normalmente como antes
+  const personObject = {
+    name: newName,
+    number: newNumber
+  }
+
+  personService
+    .create(personObject)
+    .then(returnedPerson => {
+      setPersons(persons.concat(returnedPerson))
+      setNewName('')
+      setNewNumber('')
+    })
+}
 
   const deletePerson = (id, name) => {
     if (window.confirm(`¿Estás seguro de eliminar a ${name}?`)) {
