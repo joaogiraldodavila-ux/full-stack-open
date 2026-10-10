@@ -27,8 +27,13 @@
     },
     {
       "name": "Joao Giraldo",
-      "number": "049-5141274",
+      "number": "042-9985362",
       "id": "6qR_tk72yWk"
+    },
+    {
+      "name": "Juda Benhur",
+      "number": "12-42-3482596",
+      "id": "nb8Gjh4Exeo"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import personService from './services/persons'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [notificationMessage, setNotificationMessage] = useState(null)
 
   useEffect(() => {
     personService
@@ -16,55 +18,64 @@ const App = () => {
   }, [])
 
   const addPerson = (event) => {
-  event.preventDefault()
+    event.preventDefault()
 
-  // Buscamos si el contacto ya existe en el array
-  const existingPerson = persons.find(
-    p => p.name.toLowerCase() === newName.toLowerCase()
-  )
-
-  if (existingPerson) {
-    // Si ya existe, preguntamos si desea actualizar su número
-    const confirmUpdate = window.confirm(
-      `${newName} ya está agregado a la libreta de teléfonos, ¿desea reemplazar el número antiguo por el nuevo?`
+    const existingPerson = persons.find(
+      p => p.name.toLowerCase() === newName.toLowerCase()
     )
 
-    if (confirmUpdate) {
-      const updatedPerson = { ...existingPerson, number: newNumber }
+    if (existingPerson) {
+      const confirmUpdate = window.confirm(
+        `${newName} ya está agregado a la libreta de teléfonos, ¿desea reemplazar el número antiguo por el nuevo?`
+      )
 
-      personService
-        .update(existingPerson.id, updatedPerson)
-        .then(returnedPerson => {
-          setPersons(
-            persons.map(p => p.id !== existingPerson.id ? p : returnedPerson)
-          )
-          setNewName('')
-          setNewNumber('')
-        })
-        .catch(error => {
-          alert(
-            `La información de ${newName} ya ha sido eliminada del servidor previamente.`
-          )
-          setPersons(persons.filter(p => p.id !== existingPerson.id))
-        })
+      if (confirmUpdate) {
+        const updatedPerson = { ...existingPerson, number: newNumber }
+
+        personService
+          .update(existingPerson.id, updatedPerson)
+          .then(returnedPerson => {
+            setPersons(
+              persons.map(p => p.id !== existingPerson.id ? p : returnedPerson)
+            )
+            setNewName('')
+            setNewNumber('')
+
+            // Mostrar notificación de éxito
+            setNotificationMessage(`Se actualizó correctamente el número de ${returnedPerson.name}`)
+            setTimeout(() => {
+              setNotificationMessage(null)
+            }, 5000)
+          })
+          .catch(error => {
+            alert(
+              `La información de ${newName} ya ha sido eliminada del servidor previamente.`
+            )
+            setPersons(persons.filter(p => p.id !== existingPerson.id))
+          })
+      }
+      return
     }
-    return
-  }
 
-  // Si no existe, lo creamos normalmente como antes
-  const personObject = {
-    name: newName,
-    number: newNumber
-  }
+    const personObject = {
+      name: newName,
+      number: newNumber
+    }
 
-  personService
-    .create(personObject)
-    .then(returnedPerson => {
-      setPersons(persons.concat(returnedPerson))
-      setNewName('')
-      setNewNumber('')
-    })
-}
+    personService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+
+        // Mostrar notificación de éxito
+        setNotificationMessage(`Se añadió exitosamente a ${returnedPerson.name}`)
+        setTimeout(() => {
+          setNotificationMessage(null)
+        }, 5000)
+      })
+  }
 
   const deletePerson = (id, name) => {
     if (window.confirm(`¿Estás seguro de eliminar a ${name}?`)) {
@@ -72,6 +83,12 @@ const App = () => {
         .remove(id)
         .then(() => {
           setPersons(persons.filter(p => p.id !== id))
+
+          // Mostrar notificación de éxito al eliminar
+          setNotificationMessage(`Se eliminó correctamente a ${name}`)
+          setTimeout(() => {
+            setNotificationMessage(null)
+          }, 5000)
         })
         .catch(error => {
           alert(`Ocurrió un error al intentar eliminar a ${name}`)
@@ -90,6 +107,9 @@ const App = () => {
   return (
     <div>
       <h2>Libreta de Teléfonos</h2>
+
+      {/* Componente de notificación */}
+      <Notification message={notificationMessage} />
 
       <div>
         Buscar por nombre: <input value={filter} onChange={handleFilterChange} />
