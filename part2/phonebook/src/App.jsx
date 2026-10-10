@@ -7,7 +7,6 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
 
-  // Usamos personService.getAll() en lugar de axios.get
   useEffect(() => {
     personService
       .getAll()
@@ -16,7 +15,6 @@ const App = () => {
       })
   }, [])
 
-  // Usamos personService.create() en lugar de axios.post
   const addPerson = (event) => {
     event.preventDefault()
 
@@ -41,6 +39,19 @@ const App = () => {
         setNewName('')
         setNewNumber('')
       })
+  }
+
+  const deletePerson = (id, name) => {
+    if (window.confirm(`¿Estás seguro de eliminar a ${name}?`)) {
+      personService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== id))
+        })
+        .catch(error => {
+          alert(`Ocurrió un error al intentar eliminar a ${name}`)
+        })
+    }
   }
 
   const handleNameChange = (event) => setNewName(event.target.value)
@@ -78,7 +89,8 @@ const App = () => {
       <ul>
         {personsToShow.map(person => (
           <li key={person.id}>
-            {person.name} {person.number}
+            {person.name} {person.number} {' '}
+            <button onClick={() => deletePerson(person.id, person.name)}>eliminar</button>
           </li>
         ))}
       </ul>
