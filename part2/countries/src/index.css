@@ -109,22 +109,3 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
-
-.notification {
-  background: lightgray;
-  font-size: 20px;
-  border-style: solid;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-/* Estilo para mensajes de éxito (verde) */
-.success {
-  color: green;
-}
-
-/* Estilo para mensajes de error (rojo) */
-.error {
-  color: red;
-}

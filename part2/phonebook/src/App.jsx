@@ -8,6 +8,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [notificationMessage, setNotificationMessage] = useState(null)
+  const [notificationType, setNotificationType] = useState('success') // 'success' o 'error'
 
   useEffect(() => {
     personService
@@ -16,6 +17,15 @@ const App = () => {
         setPersons(initialPersons)
       })
   }, [])
+
+  // Función auxiliar para mostrar notificaciones limpias
+  const showNotification = (message, type = 'success') => {
+    setNotificationMessage(message)
+    setNotificationType(type)
+    setTimeout(() => {
+      setNotificationMessage(null)
+    }, 5000)
+  }
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -40,18 +50,17 @@ const App = () => {
             )
             setNewName('')
             setNewNumber('')
-
-            // Mostrar notificación de éxito
-            setNotificationMessage(`Se actualizó correctamente el número de ${returnedPerson.name}`)
-            setTimeout(() => {
-              setNotificationMessage(null)
-            }, 5000)
+            showNotification(`Se actualizó correctamente el número de ${returnedPerson.name}`, 'success')
           })
           .catch(error => {
-            alert(
-              `La información de ${newName} ya ha sido eliminada del servidor previamente.`
+            // AQUÍ MANEJAMOS EL ERROR VISUAL EN ROJO EN LUGAR DE ALERT()
+            showNotification(
+              `Información de ${newName} ya ha sido eliminada del servidor previamente`,
+              'error'
             )
             setPersons(persons.filter(p => p.id !== existingPerson.id))
+            setNewName('')
+            setNewNumber('')
           })
       }
       return
@@ -68,12 +77,7 @@ const App = () => {
         setPersons(persons.concat(returnedPerson))
         setNewName('')
         setNewNumber('')
-
-        // Mostrar notificación de éxito
-        setNotificationMessage(`Se añadió exitosamente a ${returnedPerson.name}`)
-        setTimeout(() => {
-          setNotificationMessage(null)
-        }, 5000)
+        showNotification(`Se añadió exitosamente a ${returnedPerson.name}`, 'success')
       })
   }
 
@@ -83,15 +87,11 @@ const App = () => {
         .remove(id)
         .then(() => {
           setPersons(persons.filter(p => p.id !== id))
-
-          // Mostrar notificación de éxito al eliminar
-          setNotificationMessage(`Se eliminó correctamente a ${name}`)
-          setTimeout(() => {
-            setNotificationMessage(null)
-          }, 5000)
+          showNotification(`Se eliminó correctamente a ${name}`, 'success')
         })
         .catch(error => {
-          alert(`Ocurrió un error al intentar eliminar a ${name}`)
+          showNotification(`El contacto ${name} ya había sido eliminado del servidor`, 'error')
+          setPersons(persons.filter(p => p.id !== id))
         })
     }
   }
@@ -108,8 +108,8 @@ const App = () => {
     <div>
       <h2>Libreta de Teléfonos</h2>
 
-      {/* Componente de notificación */}
-      <Notification message={notificationMessage} />
+      {/* Pasamos el mensaje y el tipo de notificación al componente */}
+      <Notification message={notificationMessage} type={notificationType} />
 
       <div>
         Buscar por nombre: <input value={filter} onChange={handleFilterChange} />
