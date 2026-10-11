@@ -1,0 +1,5 @@
+### Obtener todas las personas
+GET http://localhost:3001/api/persons
+
+### Eliminar la persona con ID 5
+DELETE http://localhost:3001/api/persons/5
