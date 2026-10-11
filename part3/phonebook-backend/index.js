@@ -24,8 +24,14 @@ let persons = [
     }
 ]
 
-app.get('/api/persons', (req, res) => {
-  res.json(persons)
+app.get('/info', (req, res) => {
+  const count = persons.length // Cuenta cuántos elementos hay en el arreglo persons
+  const currentTime = new Date() // Obtiene la fecha y hora actual
+
+  res.send(`
+    <p>Phonebook has info for ${count} people</p>
+    <p>${currentTime}</p>
+  `)
 })
 
 const PORT = 3001
