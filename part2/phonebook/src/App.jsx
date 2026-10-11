@@ -130,7 +130,7 @@ const App = () => {
       </form>
 
       <h3>Números</h3>
-
+      
       <ul>
         {personsToShow.map(person => (
           <li key={person.id}>
