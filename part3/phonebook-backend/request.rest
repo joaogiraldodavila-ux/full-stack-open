@@ -1,5 +1,17 @@
-### Obtener todas las personas
+### 1. Obtener todas las personas
 GET http://localhost:3001/api/persons
 
-### Eliminar la persona con ID 5
+### 2. Obtener una persona por ID
+GET http://localhost:3001/api/persons/1
+
+### 3. Añadir una nueva persona
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+  "name": "Juan Perez",
+  "number": "975-784-351"
+}
+
+### 4. Eliminar una persona por ID
 DELETE http://localhost:3001/api/persons/5

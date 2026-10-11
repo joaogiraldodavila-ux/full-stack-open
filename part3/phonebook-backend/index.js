@@ -1,6 +1,9 @@
 const express = require('express')
 const app = express()
 
+// Middleware para parsear los datos JSON que llegan en las peticiones POST
+app.use(express.json())
+
 let persons = [
   {
     "id": "1",
@@ -29,27 +32,16 @@ let persons = [
   }
 ]
 
-// 1. Ruta para obtener todas las personas
+// 1. Ruta GET para obtener todos los contactos
 app.get('/api/persons', (req, res) => {
   res.json(persons)
 })
 
-// 2. Ruta de información (Ejercicio 3.2)
-app.get('/info', (req, res) => {
-  const count = persons.length
-  const currentTime = new Date()
-
-  res.send(`
-    <p>Phonebook has info for ${count} people</p>
-    <p>${currentTime}</p>
-  `)
-})
-
-// 3. Ruta para obtener una persona por ID (Ejercicio 3.3)
+// 2. Ruta GET para obtener un contacto individual por su ID
 app.get('/api/persons/:id', (req, res) => {
   const id = req.params.id
   const person = persons.find(p => p.id === id)
-
+  
   if (person) {
     res.json(person)
   } else {
@@ -57,6 +49,7 @@ app.get('/api/persons/:id', (req, res) => {
   }
 })
 
+// 3. Ruta DELETE para eliminar un contacto por su ID
 app.delete('/api/persons/:id', (req, res) => {
   const id = req.params.id
   persons = persons.filter(p => p.id !== id)
@@ -64,6 +57,33 @@ app.delete('/api/persons/:id', (req, res) => {
   res.status(204).end()
 })
 
+// 4. Ruta POST para añadir un nuevo contacto
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+
+  // Validación si falta el nombre o el número
+  if (!body.name || !body.number) {
+    return res.status(400).json({ 
+      error: 'Falta el nombre o el número' 
+    })
+  }
+
+  // Generar un ID aleatorio único
+  const randomId = Math.floor(Math.random() * 1000000).toString()
+
+  const newPerson = {
+    id: randomId,
+    name: body.name,
+    number: body.number
+  }
+
+  // Agregar el nuevo contacto al arreglo en memoria
+  persons = persons.concat(newPerson)
+
+  res.json(newPerson)
+})
+
+// Configuración del puerto y arranque del servidor
 const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
