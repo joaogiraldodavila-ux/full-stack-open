@@ -68,6 +68,15 @@ app.post('/api/persons', (req, res) => {
     })
   }
 
+  // Validación: si el nombre ya existe en la agenda
+  const nameExists = persons.some(p => p.name.toLowerCase() === body.name.toLowerCase())
+  
+  if (nameExists) {
+    return res.status(400).json({ 
+      error: 'El nombre debe ser único, ya existe en la agenda' 
+    })
+  }
+
   // Generar un ID aleatorio único
   const randomId = Math.floor(Math.random() * 1000000).toString()
 
