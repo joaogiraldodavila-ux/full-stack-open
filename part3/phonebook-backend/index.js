@@ -4,7 +4,14 @@ const app = express()
 
 // Middleware para parsear los datos JSON que llegan en las peticiones POST
 app.use(express.json())
-app.use(morgan('tiny'))
+
+// 1. Crear un token personalizado de Morgan para mostrar el body en formato JSON
+morgan.token('body', (req) => {
+  return req.method === 'POST' ? JSON.stringify(req.body) : ''
+})
+
+// 2. Configurar morgan usando un formato personalizado que incluya nuestro token :body
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 let persons = [
   {

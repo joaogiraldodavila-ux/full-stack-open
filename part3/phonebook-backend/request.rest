@@ -2,15 +2,15 @@
 GET http://localhost:3001/api/persons
 
 ### 2. Obtener una persona por ID
-GET http://localhost:3001/api/persons/1
+GET http://localhost:3001/api/persons/3
 
 ### 3. Añadir una nueva persona
 POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-  "name": "Arto Hellas",
-  "number": "975-784-351"
+  "name": "Lucas Film",
+  "number": "998-258-753"
 }
 
 ### 4. Eliminar una persona por ID
