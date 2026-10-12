@@ -1,9 +1,11 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors') // <-- 1. Importar cors
 const app = express()
 
 // Middleware para parsear los datos JSON que llegan en las peticiones POST
 app.use(express.json())
+app.use(cors()) // <-- 2. Usar cors para permitir solicitudes desde cualquier origen, habilitar CORS para todas las rutas
 
 // 1. Crear un token personalizado de Morgan para mostrar el body en formato JSON
 morgan.token('body', (req) => {
