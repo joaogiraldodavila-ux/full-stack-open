@@ -104,7 +104,7 @@ app.post('/api/persons', (req, res) => {
 })
 
 // Configuración del puerto y arranque del servidor
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
