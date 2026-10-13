@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 
 mongoose.set('strictQuery', false)
-
 // Obtenemos la URL de la base de datos desde las variables de entorno
 const url = process.env.MONGODB_URI
 
@@ -16,8 +15,15 @@ mongoose.connect(url)
   })
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minlength: 3,
+    required: true
+  },
+  number: {
+    type: String,
+    required: true
+  }
 })
 
 personSchema.set('toJSON', {
