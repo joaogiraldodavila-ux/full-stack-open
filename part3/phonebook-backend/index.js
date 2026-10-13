@@ -1,6 +1,9 @@
 const express = require('express')
+require('dotenv').config() // <- Importante para leer el .env
 const morgan = require('morgan')
 const cors = require('cors') // <-- 1. Importar cors
+const Person = require('./models/person') // <- Importante para usar el modelo
+
 const app = express()
 
 app.use(express.static('dist'))
@@ -44,12 +47,7 @@ let persons = [
   }
 ]
 
-// 1. Ruta GET para obtener todos los contactos
-app.get('/api/persons', (req, res) => {
-  res.json(persons)
-})
-
-// 2. Ruta GET para obtener un contacto individual por su ID
+// Ruta GET para obtener un contacto individual por su ID
 app.get('/api/persons/:id', (req, res) => {
   const id = req.params.id
   const person = persons.find(p => p.id === id)
@@ -60,6 +58,14 @@ app.get('/api/persons/:id', (req, res) => {
     res.status(404).end()
   }
 })
+
+// Ruta GET para obtener todas las personas desde MongoDB
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
+})
+
 
 // 3. Ruta DELETE para eliminar un contacto por su ID
 app.delete('/api/persons/:id', (req, res) => {
