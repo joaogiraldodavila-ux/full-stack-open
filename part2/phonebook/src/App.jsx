@@ -79,6 +79,10 @@ const App = () => {
         setNewNumber('')
         showNotification(`Se añadió exitosamente a ${returnedPerson.name}`, 'success')
       })
+     .catch(error => {
+    // Muestra el mensaje de error que viene del backend en la notificación visual
+    showNotification(error.response.data.error, 'error')
+    })  
   }
 
   const deletePerson = (id, name) => {
