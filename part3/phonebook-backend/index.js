@@ -99,6 +99,19 @@ app.post('/api/persons', (request, response) => {
   })
 })
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
+// Después de todas las rutas y otros middlewares
+app.use(errorHandler)
+
 // Configuración del puerto y arranque del servidor
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
