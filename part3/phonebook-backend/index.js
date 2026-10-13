@@ -89,6 +89,7 @@ app.post('/api/persons', (request, response) => {
       error: 'Falta el nombre o el número' 
     })
   }
+  
 //5. Actualicacion de datos en MongoDB Atlas
 app.put('/api/persons/:id', (request, response, next) => {
   const { name, number } = request.body
@@ -112,9 +113,11 @@ app.put('/api/persons/:id', (request, response, next) => {
   })
 
   // Guardamos el documento en MongoDB Atlas
-  person.save().then(savedPerson => {
-    response.json(savedPerson)
-  })
+   person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => next(error)) // <--- Pasa el error de validación a errorHandler
 })
 
 const errorHandler = (error, request, response, next) => {
@@ -123,7 +126,7 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
-    return response.status(400).json({ error: error.message })
+    return response.status(400).json({ error: error.message }) // <--- Devuelve el mensaje exacto de Mongoose
   }
 
   next(error)
