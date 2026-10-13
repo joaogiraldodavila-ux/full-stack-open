@@ -68,11 +68,12 @@ app.get('/api/persons', (request, response) => {
 
 
 // 3. Ruta DELETE para eliminar un contacto por su ID
-app.delete('/api/persons/:id', (req, res) => {
-  const id = req.params.id
-  persons = persons.filter(p => p.id !== id)
-
-  res.status(204).end()
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 // 4. Ruta POST para añadir un nuevo contacto a MongoDB
