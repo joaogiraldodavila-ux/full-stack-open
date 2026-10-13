@@ -47,15 +47,17 @@ let persons = [
   }
 ]
 
-// Ruta GET para obtener un contacto individual por su ID
-app.get('/api/persons/:id', (request, response, next) => {
-  Person.findById(request.params.id)
-    .then(person => {
-      if (person) {
-        response.json(person)
-      } else {
-        response.status(404).end()
-      }
+// Ruta GET para mostrar la infromacion de la agenda
+app.get('/info', (request, response, next) => {
+  Person.countDocuments({})
+    .then(count => {
+      const currentTime = new Date()
+      response.markdown = `<p>Phonebook has info for ${count} people</p><p>${currentTime}</p>` 
+      // O response.send con HTML
+      response.send(`
+        <p>Phonebook has info for ${count} people</p>
+        <p>${currentTime}</p>
+      `)
     })
     .catch(error => next(error))
 })
