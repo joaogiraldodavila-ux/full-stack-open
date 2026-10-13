@@ -87,6 +87,21 @@ app.post('/api/persons', (request, response) => {
       error: 'Falta el nombre o el número' 
     })
   }
+//5. Actualicacion de datos en MongoDB Atlas
+app.put('/api/persons/:id', (request, response, next) => {
+  const { name, number } = request.body
+
+  Person.findByIdAndUpdate(
+    request.params.id, 
+    { name, number }, 
+    { new: true, runValidators: true, context: 'query' }
+  )
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
+})
+
 
   // Creamos una nueva instancia del modelo Person con los datos recibidos
   const person = new Person({
