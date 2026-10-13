@@ -22,8 +22,15 @@ const personSchema = new mongoose.Schema({
   },
   number: {
     type: String,
-    minlength: [9, 'El teléfono debe tener al menos 9 caracteres'],
-    required: [true, 'El teléfono es obligatorio']
+    required: [true, 'El teléfono es obligatorio'],
+    minlength: [8, 'El número de teléfono debe tener al menos 8 caracteres'],
+    validate: {
+    validator: function(v) {
+      // Valida que tenga la estructura: 2-3 dígitos, un guion, y luego más dígitos
+      return /^\d{2,3}-\d+$/.test(v);
+    },
+    message: props => `${props.value} no es un número de teléfono válido. Debe tener el formato XX-YYYYYY o XXX-YYYYYY.`
+  }
   }
 })
 
