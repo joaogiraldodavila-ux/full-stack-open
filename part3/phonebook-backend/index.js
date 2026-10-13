@@ -75,39 +75,27 @@ app.delete('/api/persons/:id', (req, res) => {
   res.status(204).end()
 })
 
-// 4. Ruta POST para añadir un nuevo contacto
-app.post('/api/persons', (req, res) => {
-  const body = req.body
+// 4. Ruta POST para añadir un nuevo contacto a MongoDB
+app.post('/api/persons', (request, response) => {
+  const body = request.body
 
-  // Validación si falta el nombre o el número
+  // Validación: si falta el nombre o el número
   if (!body.name || !body.number) {
-    return res.status(400).json({ 
+    return response.status(400).json({ 
       error: 'Falta el nombre o el número' 
     })
   }
 
-  // Validación: si el nombre ya existe en la agenda
-  const nameExists = persons.some(p => p.name.toLowerCase() === body.name.toLowerCase())
-  
-  if (nameExists) {
-    return res.status(400).json({ 
-      error: 'El nombre debe ser único, ya existe en la agenda' 
-    })
-  }
-
-  // Generar un ID aleatorio único
-  const randomId = Math.floor(Math.random() * 1000000).toString()
-
-  const newPerson = {
-    id: randomId,
+  // Creamos una nueva instancia del modelo Person con los datos recibidos
+  const person = new Person({
     name: body.name,
-    number: body.number
-  }
+    number: body.number,
+  })
 
-  // Agregar el nuevo contacto al arreglo en memoria
-  persons = persons.concat(newPerson)
-
-  res.json(newPerson)
+  // Guardamos el documento en MongoDB Atlas
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
 })
 
 // Configuración del puerto y arranque del servidor
