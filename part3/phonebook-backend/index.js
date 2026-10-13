@@ -80,15 +80,22 @@ app.delete('/api/persons/:id', (request, response, next) => {
 })
 
 // 4. Ruta POST para añadir un nuevo contacto a MongoDB
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
-  // Validación: si falta el nombre o el número
-  if (!body.name || !body.number) {
-    return response.status(400).json({ 
-      error: 'Falta el nombre o el número' 
+  // Creamos una nueva instancia del modelo Person con los datos recibidos
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  })
+
+  // Guardamos el documento en MongoDB Atlas
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
     })
-  }
+    .catch(error => next(error)) // Pasa el error de validación (Mongoose) al errorHandler
+})
   
 //5. Actualicacion de datos en MongoDB Atlas
 app.put('/api/persons/:id', (request, response, next) => {
@@ -103,21 +110,6 @@ app.put('/api/persons/:id', (request, response, next) => {
       response.json(updatedPerson)
     })
     .catch(error => next(error))
-})
-
-
-  // Creamos una nueva instancia del modelo Person con los datos recibidos
-  const person = new Person({
-    name: body.name,
-    number: body.number,
-  })
-
-  // Guardamos el documento en MongoDB Atlas
-   person.save()
-    .then(savedPerson => {
-      response.json(savedPerson)
-    })
-    .catch(error => next(error)) // <--- Pasa el error de validación a errorHandler
 })
 
 const errorHandler = (error, request, response, next) => {
