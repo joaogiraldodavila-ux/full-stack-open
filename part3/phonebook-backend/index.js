@@ -19,34 +19,6 @@ morgan.token('body', (req) => {
 // 2. Configurar morgan usando un formato personalizado que incluya nuestro token :body
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-let persons = [
-  {
-    "id": "1",
-    "name": "Arto Hellas",
-    "number": "040-123456"
-  },
-  {
-    "id": "2",
-    "name": "Ada Lovelace",
-    "number": "39-44-5323523"
-  },
-  {
-    "id": "3",
-    "name": "Dan Abramov",
-    "number": "12-43-234345"
-  },
-  {
-    "id": "4",
-    "name": "Mary Poppendieck",
-    "number": "39-23-643122"
-  },
-  {
-    "id": "5",
-    "name": "Joao Giraldo",
-    "number": "77-63-864321"
-  }
-]
-
 // Ruta GET para mostrar la infromacion de la agenda
 app.get('/info', (request, response, next) => {
   Person.countDocuments({})
@@ -73,7 +45,7 @@ app.get('/api/persons', (request, response) => {
 // 3. Ruta DELETE para eliminar un contacto por su ID
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then(result => {
+    .then(()=> {
       response.status(204).end()
     })
     .catch(error => next(error))

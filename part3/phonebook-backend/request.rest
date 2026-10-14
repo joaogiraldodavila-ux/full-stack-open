@@ -9,8 +9,8 @@ POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-  "name": "Lucas Film",
-  "number": "998-258-753"
+  "name": "Arnold Chavez",
+  "number": "97-4532687"
 }
 
 ### 4. Eliminar una persona por ID
