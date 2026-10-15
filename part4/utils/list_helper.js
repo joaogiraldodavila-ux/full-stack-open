@@ -45,9 +45,38 @@ const mostBlogs = (blogs) => {
   }
 }
 
+const mostLikes = (blogs) => {
+  if (blogs.length === 0) return null
+
+  // Objeto para acumular los likes por autor
+  const authorLikes = {}
+
+  blogs.forEach((blog) => {
+    authorLikes[blog.author] = (authorLikes[blog.author] || 0) + blog.likes
+  })
+
+  let topAuthor = null
+  let maxLikes = 0
+
+  // Buscamos cuál autor tiene la mayor cantidad de likes acumulados
+  for (const [author, likes] of Object.entries(authorLikes)) {
+    if (likes > maxLikes) {
+      maxLikes = likes
+      topAuthor = author
+    }
+  }
+
+  return {
+    author: topAuthor,
+    likes: maxLikes
+  }
+}
+
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
