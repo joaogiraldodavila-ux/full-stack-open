@@ -48,24 +48,6 @@ describe('addition of a new blog', () => {
     )
   })
 
-  describe('deletion of a blog', () => {
-  test('succeeds with status code 204 if id is valid', async () => {
-    const blogsAtStart = await api.get('/api/blogs')
-    const blogToDelete = blogsAtStart.body[0]
-
-    await api
-      .delete(`/api/blogs/${blogToDelete.id}`)
-      .expect(204)
-
-    const blogsAtEnd = await api.get('/api/blogs')
-
-    assert.strictEqual(blogsAtEnd.length, blogsAtStart.body.length - 1)
-
-    const titles = blogsAtEnd.map(r => r.title)
-    assert.strictEqual(titles.includes(blogToDelete.title), false)
-  })
-})
-
   test('if likes property is missing, it defaults to 0', async () => {
     const newBlogWithoutLikes = {
       title: 'Blog without likes property',
@@ -106,6 +88,49 @@ describe('addition of a new blog', () => {
       .post('/api/blogs')
       .send(newBlog)
       .expect(400)
+  })
+})
+
+describe('deletion of a blog', () => {
+  test('succeeds with status code 204 if id is valid', async () => {
+    const blogsAtStart = await api.get('/api/blogs')
+    const blogToDelete = blogsAtStart.body[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+
+    const blogsAtEnd = await api.get('/api/blogs')
+
+    assert.strictEqual(blogsAtEnd.body.length, blogsAtStart.body.length - 1)
+
+    const ids = blogsAtEnd.body.map(r => r.id)
+    assert.strictEqual(ids.includes(blogToDelete.id), false)
+  })
+})
+
+describe('updating a blog', () => {
+  test('succeeds with status code 200 and updates likes if id is valid', async () => {
+    const blogsAtStart = await api.get('/api/blogs')
+    const blogToUpdate = blogsAtStart.body[0]
+
+    const updatedBlogData = {
+      title: blogToUpdate.title,
+      author: blogToUpdate.author,
+      url: blogToUpdate.url,
+      likes: blogToUpdate.likes + 10
+    }
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedBlogData)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await api.get('/api/blogs')
+    const updatedBlog = blogsAtEnd.body.find(b => b.id === blogToUpdate.id)
+
+    assert.strictEqual(updatedBlog.likes, blogToUpdate.likes + 10)
   })
 })
 
