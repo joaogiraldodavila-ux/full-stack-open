@@ -1,3 +1,5 @@
+const { test, describe } = require('node:test')
+const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
 
 describe('favorite blog', () => {
@@ -35,6 +37,6 @@ describe('favorite blog', () => {
       author: 'Edsger W. Dijkstra',
       likes: 12
     }
-    expect(result).toEqual(expected)
+    assert.deepStrictEqual(result, expected)
   })
 })
