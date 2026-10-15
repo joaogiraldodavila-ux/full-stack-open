@@ -1,0 +1,12 @@
+GET http://localhost:3003/api/blogs
+
+###
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Mi primer blog de prueba en Full Stack Open",
+  "author": "Joao Giraldo",
+  "url": "https://fullstackopen.com/",
+  "likes": 5
+}
