@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 const dummy = (blogs) => {
   return 1
 }
@@ -13,7 +15,6 @@ const favoriteBlog = (blogs) => {
     return current.likes > prev.likes ? current : prev
   })
 
-  // Opcional: devolvemos un objeto limpio o las propiedades clave según prefieras
   return {
     title: favorite.title,
     author: favorite.author,
@@ -21,8 +22,32 @@ const favoriteBlog = (blogs) => {
   }
 }
 
+const mostBlogs = (blogs) => {
+  if (blogs.length === 0) return null
+
+  // 1. Agrupamos los blogs por autor usando lodash
+  const authorCounts = _.countBy(blogs, 'author')
+
+  // 2. Buscamos cuál es el autor con más blogs
+  let topAuthor = null
+  let maxBlogs = 0
+
+  for (const [author, count] of Object.entries(authorCounts)) {
+    if (count > maxBlogs) {
+      maxBlogs = count
+      topAuthor = author
+    }
+  }
+
+  return {
+    author: topAuthor,
+    blogs: maxBlogs
+  }
+}
+
 module.exports = {
   dummy,
   totalLikes,
-  favoriteBlog
+  favoriteBlog,
+  mostBlogs
 }
