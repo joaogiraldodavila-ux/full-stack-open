@@ -40,6 +40,30 @@ blogsRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
+blogsRouter.delete('/:id', async (request, response) => {
+  // 1. Verificar el token usando el middleware y process.env.SECRET
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+
+  // 2. Buscar el blog que se quiere eliminar en la base de datos
+  const blog = await Blog.findById(request.params.id)
+  if (!blog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
+
+  // 3. Verificar si el usuario autenticado es el creador del blog
+  // Nota: blog.user viene como objeto, por eso usamos .toString()
+  if (blog.user.toString() !== decodedToken.id.toString()) {
+    return response.status(403).json({ error: 'only the creator can delete this blog' })
+  }
+
+  // 4. Si todo coincide, proceder a eliminar el blog
+  await Blog.findByIdAndDelete(request.params.id)
+  response.status(204).end()
+})
+
 // ... (tus rutas de DELETE y PUT se mantienen igual)
 
 module.exports = blogsRouter

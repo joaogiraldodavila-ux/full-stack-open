@@ -38,3 +38,9 @@ Content-Type: application/json
   "username": "hellas",
   "password": "salet"
 }
+
+### ==========================================
+### ELIMINAR UN BLOG (Ejercicio 4.21)
+### ==========================================
+DELETE http://localhost:3003/api/blogs/6ad1b0276c4c30ad8e53aa6c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbGxhcyIsImlkIjoiNmFkMTg2ODhjYzZiMmRhNDVmOGRhZDgxIiwiaWF0IjoxNzkyMTI4ODQxLCJleHAiOjE3OTIxMzI0NDF9.LVtwdbzaStrMIPOvtraOh3I0KQ444t8C5DBO1g2quT0
