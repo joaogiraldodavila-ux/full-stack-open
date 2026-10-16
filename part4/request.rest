@@ -1,15 +1,16 @@
 ### Obtener todos los blogs
 GET http://localhost:3003/api/blogs
 
-### Crear un nuevo blog
+### Crear un nuevo blog con token de autenticación
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbGxhcyIsImlkIjoiNmFkMTg2ODhjYzZiMmRhNDVmOGRhZDgxIiwiaWF0IjoxNzkyMTIxMTgwLCJleHAiOjE3OTIxMjQ3ODB9.lsRFMATyPfXeWfJQonlc06KGfSCCBj5D30mtZs7omWo
 
 {
-  "title": "Mi primer blog de prueba en Full Stack Open",
+  "title": "Blog creado con autenticación JWT",
   "author": "João Giraldo",
   "url": "https://fullstackopen.com/",
-  "likes": 5
+  "likes": 10
 }
 
 ### ==========================================
