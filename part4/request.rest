@@ -1,12 +1,30 @@
+### Obtener todos los blogs
 GET http://localhost:3003/api/blogs
 
-###
+### Crear un nuevo blog
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
   "title": "Mi primer blog de prueba en Full Stack Open",
-  "author": "Joao Giraldo",
+  "author": "João Giraldo",
   "url": "https://fullstackopen.com/",
   "likes": 5
+}
+
+### ==========================================
+### PETICIONES PARA USUARIOS (Ejercicio 4.15)
+### ==========================================
+
+### Obtener todos los usuarios
+GET http://localhost:3003/api/users
+
+### Crear un nuevo usuario
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "hellas",
+  "name": "Arto Hellas",
+  "password": "salet"
 }

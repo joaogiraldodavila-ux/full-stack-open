@@ -6,8 +6,7 @@ const logger = require('./utils/logger')
 const mongoose = require('mongoose')
 const middleware = require('./utils/middleware')
 const blogsRouter = require('./controllers/blogs')
-
-mongoose.set('strictQuery', false)
+const usersRouter = require('./controllers/users')
 
 logger.info('connecting to', config.MONGODB_URI)
 
@@ -22,9 +21,10 @@ mongoose.connect(config.MONGODB_URI)
 app.use(cors())
 app.use(express.json())
 app.use(middleware.requestLogger)
+
+// Rutas de la API
 app.use('/api/blogs', blogsRouter)
-// Aquí agregaremos las rutas de los controladores en los ejercicios
-// app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
