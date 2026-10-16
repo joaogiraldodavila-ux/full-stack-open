@@ -4,7 +4,7 @@ GET http://localhost:3003/api/blogs
 ### Crear un nuevo blog con token de autenticación
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbGxhcyIsImlkIjoiNmFkMTg2ODhjYzZiMmRhNDVmOGRhZDgxIiwiaWF0IjoxNzkyMTIxMTgwLCJleHAiOjE3OTIxMjQ3ODB9.lsRFMATyPfXeWfJQonlc06KGfSCCBj5D30mtZs7omWo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbGxhcyIsImlkIjoiNmFkMTg2ODhjYzZiMmRhNDVmOGRhZDgxIiwiaWF0IjoxNzkyMTI1NjM0LCJleHAiOjE3OTIxMjkyMzR9.ASuXBfmPRmDAMLf98dd1s1GN5jXmn3UQc72kj_J9IHA
 
 {
   "title": "Blog creado con autenticación JWT",
