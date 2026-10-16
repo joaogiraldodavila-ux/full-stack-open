@@ -1,7 +1,5 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
@@ -10,60 +8,48 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
+  const user = request.user
 
-  // Validar que el token exista en la solicitud
-  if (!request.token) {
-    return response.status(401).json({ error: 'token missing' })
+  if (!user) {
+    return response.status(401).json({ error: 'token missing or invalid' })
   }
-
-  // Decodificar y verificar el token
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-
-  // Buscar al usuario usando el ID que venía dentro del token
-  const user = await User.findById(decodedToken.id)
 
   const blog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
     likes: body.likes || 0,
-    user: user._id // Asignamos el usuario autenticado
+    user: user._id
   })
 
   const savedBlog = await blog.save()
   user.blogs = user.blogs.concat(savedBlog._id)
   await user.save()
 
-  response.status(201).json(savedBlog)
+  // Devolvemos el blog poblado con los datos del usuario para mantener la consistencia
+  const populatedBlog = await Blog.findById(savedBlog._id).populate('user', { username: 1, name: 1 })
+  response.status(201).json(populatedBlog)
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-  // 1. Verificar el token usando el middleware y process.env.SECRET
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
+  const user = request.user
+
+  if (!user) {
+    return response.status(401).json({ error: 'token missing or invalid' })
   }
 
-  // 2. Buscar el blog que se quiere eliminar en la base de datos
   const blog = await Blog.findById(request.params.id)
+
   if (!blog) {
     return response.status(404).json({ error: 'blog not found' })
   }
 
-  // 3. Verificar si el usuario autenticado es el creador del blog
-  // Nota: blog.user viene como objeto, por eso usamos .toString()
-  if (blog.user.toString() !== decodedToken.id.toString()) {
+  if (blog.user.toString() !== user._id.toString()) {
     return response.status(403).json({ error: 'only the creator can delete this blog' })
   }
 
-  // 4. Si todo coincide, proceder a eliminar el blog
   await Blog.findByIdAndDelete(request.params.id)
   response.status(204).end()
 })
-
-// ... (tus rutas de DELETE y PUT se mantienen igual)
 
 module.exports = blogsRouter

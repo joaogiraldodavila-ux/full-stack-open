@@ -4,7 +4,7 @@ GET http://localhost:3003/api/blogs
 ### Crear un nuevo blog con token de autenticación
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbGxhcyIsImlkIjoiNmFkMTg2ODhjYzZiMmRhNDVmOGRhZDgxIiwiaWF0IjoxNzkyMTI1NjM0LCJleHAiOjE3OTIxMjkyMzR9.ASuXBfmPRmDAMLf98dd1s1GN5jXmn3UQc72kj_J9IHA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1heCIsImlkIjoiNmFkMWMxOTYwMjcwMzhjMDBlMzI1ZTMwIiwiaWF0IjoxNzkyMTMxNTEzLCJleHAiOjE3OTIxMzUxMTN9.aDFyvfBhDFmCDhi-qxyUIKpulAUPTHca4K3ex_3JieE
 
 {
   "title": "Blog creado con autenticación JWT",
@@ -25,8 +25,8 @@ POST http://localhost:3003/api/users
 Content-Type: application/json
 
 {
-  "username": "hellas",
-  "name": "Arto Hellas",
+  "username": "Max",
+  "name": "Cassio Horna",
   "password": "salet"
 }
 
@@ -35,12 +35,12 @@ POST http://localhost:3003/api/login
 Content-Type: application/json
 
 {
-  "username": "hellas",
+  "username": "Max",
   "password": "salet"
 }
 
 ### ==========================================
 ### ELIMINAR UN BLOG (Ejercicio 4.21)
 ### ==========================================
-DELETE http://localhost:3003/api/blogs/6ad1b0276c4c30ad8e53aa6c
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhlbGxhcyIsImlkIjoiNmFkMTg2ODhjYzZiMmRhNDVmOGRhZDgxIiwiaWF0IjoxNzkyMTI4ODQxLCJleHAiOjE3OTIxMzI0NDF9.LVtwdbzaStrMIPOvtraOh3I0KQ444t8C5DBO1g2quT0
+DELETE http://localhost:3003/api/blogs/6ad18013747f3d44e7ab052f
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1heCIsImlkIjoiNmFkMWMxOTYwMjcwMzhjMDBlMzI1ZTMwIiwiaWF0IjoxNzkyMTMxNTg4LCJleHAiOjE3OTIxMzUxODh9.k33zuipXT6ywiLQwqmqV79pMuRqi1t-OM8NWfwCMhn8
