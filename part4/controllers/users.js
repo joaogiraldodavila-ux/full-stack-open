@@ -2,18 +2,28 @@ const bcrypt = require('bcryptjs')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
 
-// Endpoint para obtener todos los usuarios (GET /api/users)
 usersRouter.get('/', async (request, response) => {
   const users = await User.find({})
   response.json(users)
 })
 
-// Endpoint para crear un nuevo usuario (POST /api/users)
 usersRouter.post('/', async (request, response) => {
   const { username, name, password } = request.body
 
+  // Validación de username
+  if (!username || username.length < 3) {
+    return response.status(400).json({ error: 'username must be at least 3 characters long' })
+  }
+
+  // Validación de password (en texto plano antes del hash)
   if (!password || password.length < 3) {
     return response.status(400).json({ error: 'password must be at least 3 characters long' })
+  }
+
+  // Verificar que el username sea único
+  const existingUser = await User.findOne({ username })
+  if (existingUser) {
+    return response.status(400).json({ error: 'expected `username` to be unique' })
   }
 
   const saltRounds = 10
