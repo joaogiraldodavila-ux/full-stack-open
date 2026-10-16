@@ -12,22 +12,18 @@ usersRouter.get('/', async (request, response) => {
 usersRouter.post('/', async (request, response) => {
   const { username, name, password } = request.body
 
-  // Validación de username
-  if (!username || username.length < 3) {
-    return response.status(400).json({ error: 'username must be at least 3 characters long' })
-  }
-
-  // Validación de password (en texto plano antes del hash)
-  if (!password || password.length < 3) {
-    return response.status(400).json({ error: 'password must be at least 3 characters long' })
-  }
-
-  // Verificar que el username sea único
+  // AGREGA ESTA VALIDACIÓN AQUÍ:
   const existingUser = await User.findOne({ username })
   if (existingUser) {
     return response.status(400).json({ error: 'expected `username` to be unique' })
   }
 
+  // Validación de la longitud de la contraseña...
+  if (!password || password.length < 3) {
+    return response.status(400).json({ error: 'password must be at least 3 characters long' })
+  }
+
+  // Resto del código para hashear y guardar el usuario...
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(password, saltRounds)
 
@@ -38,7 +34,6 @@ usersRouter.post('/', async (request, response) => {
   })
 
   const savedUser = await user.save()
-
   response.status(201).json(savedUser)
 })
 

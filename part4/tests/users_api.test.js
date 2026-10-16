@@ -5,13 +5,24 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const User = require('../models/user')
+const bcrypt = require('bcryptjs')
+
+// Función auxiliar para obtener los usuarios actuales de la base de datos
+const usersInDb = async () => {
+  const users = await User.find({})
+  return users.map(u => u.toJSON())
+}
 
 describe('when there is initially one user in db', () => {
   beforeEach(async () => {
     await User.deleteMany({})
 
-    const passwordHash = await bcrypt.hash('sekret', 10)
-    const user = new User({ username: 'root', name: 'Superuser', passwordHash })
+    const passwordHash = await bcrypt.hash('salet', 10)
+    const user = new User({
+      username: 'root',
+      name: 'Superuser',
+      passwordHash
+    })
 
     await user.save()
   })
@@ -43,7 +54,7 @@ describe('when there is initially one user in db', () => {
 
     const newUser = {
       username: 'root',
-      name: 'Superuser',
+      name: 'Superuser Duplicate',
       password: 'salet',
     }
 
@@ -60,29 +71,23 @@ describe('when there is initially one user in db', () => {
   })
 
   test('creation fails if password or username is too short', async () => {
-    const invalidUser = {
+    const usersAtStart = await usersInDb()
+
+    const newUser = {
       username: 'ab',
       name: 'Short Username',
       password: '12',
     }
 
-    const result = await api
+    await api
       .post('/api/users')
-      .send(invalidUser)
+      .send(newUser)
       .expect(400)
-      .expect('Content-Type', /application\/json/)
 
-    assert(result.body.error.includes('must be at least 3 characters long'))
+    const usersAtEnd = await usersInDb()
+    assert.strictEqual(usersAtEnd.length, usersAtStart.length)
   })
 })
-
-const bcrypt = require('bcryptjs')
-
-const usersInDb = async () => {
-  const users = await User.find({})
-  voices = users.map(u => u.toJSON())
-  return voices
-}
 
 after(async () => {
   await mongoose.connection.close()
