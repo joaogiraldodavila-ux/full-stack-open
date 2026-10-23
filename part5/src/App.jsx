@@ -12,26 +12,44 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs(blogs)
-    )  
+    )
+  }, [])
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      blogService.setToken(user.token)
+    }
   }, [])
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    
     try {
       const user = await loginService.login({
         username, password,
       })
 
+      window.localStorage.setItem(
+        'loggedBlogAppUser', JSON.stringify(user)
+      )
+      
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
     } catch (exception) {
-      console.error('Wrong credentials')
+      console.log('Wrong credentials')
     }
   }
 
-  // Renderizado condicional
+  const handleLogout = () => {
+    window.localStorage.removeItem('loggedBlogAppUser')
+    blogService.setToken(null)
+    setUser(null)
+  }
+
   if (user === null) {
     return (
       <div>
@@ -39,7 +57,7 @@ const App = () => {
         <form onSubmit={handleLogin}>
           <div>
             username
-            <input
+              <input
               type="text"
               value={username}
               name="Username"
@@ -48,7 +66,7 @@ const App = () => {
           </div>
           <div>
             password
-            <input
+              <input
               type="password"
               value={password}
               name="Password"
@@ -64,7 +82,11 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <p>{user.name} logged in</p>
+      <p>
+        {user.name} logged in 
+        <button onClick={handleLogout}>logout</button>
+      </p>
+
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
