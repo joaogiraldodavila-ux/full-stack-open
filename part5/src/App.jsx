@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Notification from './components/Notification'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -11,6 +12,8 @@ const App = () => {
   const [newTitle, setNewTitle] = useState('')
   const [newAuthor, setNewAuthor] = useState('')
   const [newUrl, setNewUrl] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(null)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -43,7 +46,10 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      console.log('Wrong credentials')
+    setErrorMessage('wrong username or password')
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000) // Se oculta tras 5 segundos
     }
   }
 
@@ -58,11 +64,20 @@ const App = () => {
     try {
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
+      
+      setSuccessMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
+      setTimeout(() => {
+        setSuccessMessage(null)
+      }, 5000)
+
       setNewTitle('')
       setNewAuthor('')
       setNewUrl('')
     } catch (exception) {
-      console.log('Error creating blog')
+      setErrorMessage('Error creating blog')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
     }
   }
 
@@ -75,6 +90,9 @@ const App = () => {
   if (user === null) {
     return (
       <div>
+        <Notification message={errorMessage} type="error" />
+        <Notification message={successMessage} type="success" />
+
         <h2>log in to application</h2>
         <form onSubmit={handleLogin}>
           <div>
@@ -103,6 +121,9 @@ const App = () => {
 
   return (
     <div>
+      <Notification message={errorMessage} type="error" />
+      <Notification message={successMessage} type="success" />
+
       <h2>blogs</h2>
       <p>
         {user.name} logged in 
