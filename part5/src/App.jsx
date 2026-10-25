@@ -146,9 +146,13 @@ const App = () => {
 
       <br />
 
-      {blogs.map(blog =>
+      {blogs
+      .slice() // Creamos una copia para no mutar el estado original
+      .sort((a, b) => b.likes - a.likes) // Ordenamos de mayor a menor likes
+      .map(blog => (
       <Blog key={blog.id} blog={blog} updateLikes={() => likeBlog(blog.id)} />
-      )}
+      ))}
+    }
     </div>
   )
 }
