@@ -12,9 +12,6 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
   const blogFormRef = useRef() 
@@ -50,8 +47,8 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-    setErrorMessage('wrong username or password')
-    setTimeout(() => {
+      setErrorMessage('wrong username or password')
+      setTimeout(() => {
       setErrorMessage(null)
     }, 5000) // Se oculta tras 5 segundos
     }
