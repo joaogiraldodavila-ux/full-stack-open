@@ -78,6 +78,20 @@ const App = () => {
     setUser(null)
   }
 
+  const deleteBlog = async (id) => {
+  const blogToRemove = blogs.find(b => b.id === id)
+  
+  if (window.confirm(`Remove blog ${blogToRemove.title} by ${blogToRemove.author}?`)) {
+    try {
+      await blogService.remove(id)
+      // Actualizamos el estado filtrando el blog eliminado
+      setBlogs(blogs.filter(b => b.id !== id))
+    } catch (error) {
+      console.error('Error al eliminar el blog', error)
+    }
+  }
+}
+
   const likeBlog = async (id) => {
   const blogToUpdate = blogs.find(b => b.id === id)
   const updatedBlog = {
@@ -150,8 +164,15 @@ const App = () => {
       .slice() // Creamos una copia para no mutar el estado original
       .sort((a, b) => b.likes - a.likes) // Ordenamos de mayor a menor likes
       .map(blog => (
-      <Blog key={blog.id} blog={blog} updateLikes={() => likeBlog(blog.id)} />
-      ))}
+      <Blog 
+      key={blog.id} 
+      blog={blog} 
+      updateLikes={() => likeBlog(blog.id)} 
+      removeBlog={() => deleteBlog(blog.id)}
+      user={user} // Pasamos el usuario actual para validar la propiedad del blog
+      />
+      ))
+      }
     }
     </div>
   )
