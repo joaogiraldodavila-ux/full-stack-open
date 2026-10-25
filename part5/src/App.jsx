@@ -83,12 +83,14 @@ const App = () => {
   const updatedBlog = {
     ...blogToUpdate,
     likes: blogToUpdate.likes + 1,
-    user: blogToUpdate.user ? blogToUpdate.user.id : undefined // Dependiendo de si el backend espera el ID del usuario
+    user: blogToUpdate.user ? blogToUpdate.user.id : undefined 
   }
 
   try {
     const returnedBlog = await blogService.update(id, updatedBlog)
-    // Actualizamos el estado de los blogs reemplazando el modificado
+    
+    // Nos aseguramos de conservar el objeto 'user' original 
+    // combinando la respuesta con el usuario que ya teníamos en 'blogToUpdate.user'
     setBlogs(blogs.map(b => b.id === id ? { ...returnedBlog, user: blogToUpdate.user } : b))
   } catch (exception) {
     console.error('Error al dar like', exception)
