@@ -78,6 +78,23 @@ const App = () => {
     setUser(null)
   }
 
+  const likeBlog = async (id) => {
+  const blogToUpdate = blogs.find(b => b.id === id)
+  const updatedBlog = {
+    ...blogToUpdate,
+    likes: blogToUpdate.likes + 1,
+    user: blogToUpdate.user ? blogToUpdate.user.id : undefined // Dependiendo de si el backend espera el ID del usuario
+  }
+
+  try {
+    const returnedBlog = await blogService.update(id, updatedBlog)
+    // Actualizamos el estado de los blogs reemplazando el modificado
+    setBlogs(blogs.map(b => b.id === id ? { ...returnedBlog, user: blogToUpdate.user } : b))
+  } catch (exception) {
+    console.error('Error al dar like', exception)
+  }
+}
+
   if (user === null) {
     return (
       <div>
@@ -128,7 +145,7 @@ const App = () => {
       <br />
 
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+      <Blog key={blog.id} blog={blog} updateLikes={() => likeBlog(blog.id)} />
       )}
     </div>
   )
