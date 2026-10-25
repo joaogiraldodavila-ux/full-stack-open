@@ -46,7 +46,7 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
-    } catch (exception) {
+    } catch {
       setErrorMessage('wrong username or password')
       setTimeout(() => {
       setErrorMessage(null)
@@ -64,7 +64,7 @@ const App = () => {
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
-    } catch (exception) {
+    } catch {
       setErrorMessage('Error creating blog')
       setTimeout(() => {
         setErrorMessage(null)
@@ -173,7 +173,6 @@ const App = () => {
       />
       ))
       }
-    }
     </div>
   )
 }
