@@ -6,7 +6,6 @@ import LoginForm from './components/LoginForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
-import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
 
 const App = () => {
@@ -17,7 +16,6 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
   
-  const blogFormRef = useRef()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -59,14 +57,18 @@ const App = () => {
 
   const addBlog = async (blogObject) => {
     try {
-      blogFormRef.current.toggleVisibility()
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
       setSuccessMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
-      setTimeout(() => setSuccessMessage(null), 5000)
+      setTimeout(() => {
+        setSuccessMessage(null)
+      }, 5000)
+      navigate('/') // <--- AGREGA ESTA LÍNEA AQUÍ
     } catch (exception) {
-      setErrorMessage('Error creating blog')
-      setTimeout(() => setErrorMessage(null), 5000)
+      setErrorMessage('Wrong credentials or missing fields')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
     }
   }
 
@@ -99,6 +101,7 @@ const App = () => {
         setBlogs(blogs.filter(b => b.id !== id))
         setSuccessMessage(`Blog ${blogToDelete.title} removed successfully`)
         setTimeout(() => setSuccessMessage(null), 5000)
+        navigate('/') // <--- AGREGA ESTA LÍNEA AQUÍ
       } catch (exception) {
         setErrorMessage('Error deleting blog')
         setTimeout(() => setErrorMessage(null), 5000)
@@ -121,16 +124,21 @@ const App = () => {
     <div>
       {/* Barra de navegación con React Router */}
       <div style={navStyle}>
-        <Link to="/" style={{ marginRight: '10px' }}>blogs</Link>
-        {user === null ? (
-          <Link to="/login">login</Link>
-        ) : (
-          <>
-            <span>{user.name} logged in </span>
-            <button onClick={handleLogout}>logout</button>
-          </>
-        )}
-      </div>
+       <Link to="/" style={{ marginRight: '10px' }}>blogs</Link>
+       {user && (
+      <button onClick={() => navigate('/create')} style={{ marginRight: '10px' }}>
+      new blog
+      </button>
+      )}
+       {user === null ? (
+       <Link to="/login">login</Link>
+       ) : (
+       <>
+      <span style={{ marginRight: '10px' }}>{user.name} logged in </span>
+      <button onClick={handleLogout}>logout</button>
+       </>
+     )}
+    </div>
 
       <h2>blogs</h2>
       <Notification message={errorMessage} type="error" />
@@ -140,12 +148,6 @@ const App = () => {
       <Routes>
         <Route path="/" element={
           <div>
-            {user !== null && (
-              <Togglable buttonLabel="new blog" ref={blogFormRef}>
-                <BlogForm createBlog={addBlog} />
-              </Togglable>
-            )}
-            
             {blogs
               .slice()
               .sort((a, b) => b.likes - a.likes)
@@ -189,6 +191,8 @@ const App = () => {
       </div>
     ) : null
   } />
+
+        <Route path="/create" element={<BlogForm createBlog={addBlog} />} />
   </Routes>
     </div>
   )
