@@ -48,8 +48,19 @@ describe('Blog app', () => {
   })
 
   describe('When logged in', () => {
-    beforeEach(async ({ page }) => {
-      // Iniciamos sesión antes de cada prueba de este bloque
+    beforeEach(async ({ page, request }) => {
+      // 1. Reiniciamos la base de datos y creamos el usuario base mediante la API del backend
+      await request.post('http://localhost:3003/api/testing/reset')
+      await request.post('http://localhost:3003/api/users', {
+        data: {
+          username: 'joao',
+          name: 'Joao Giraldo',
+          password: 'password123'
+        }
+      })
+
+      // 2. Iniciamos sesión en la interfaz
+      await page.goto('http://localhost:5173')
       await page.getByRole('textbox').first().fill('joao')
       await page.getByRole('textbox').nth(1).fill('password123')
       await page.getByRole('button', { name: 'login' }).click()
@@ -58,25 +69,27 @@ describe('Blog app', () => {
     test('a new blog can be created', async ({ page }) => {
       await page.getByRole('button', { name: 'new blog' }).click()
 
+      const title = `Unico blog de creacion test ${Date.now()}`
       const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill('Unico blog de creacion test')
+      await inputs.nth(0).fill(title)
       await inputs.nth(1).fill('Joao Giraldo')
       await inputs.nth(2).fill('https://fullstackopen.com/')
       await page.getByRole('button', { name: 'create' }).click()
 
-      await expect(page.locator('.blogSummary', { hasText: 'Unico blog de creacion test' })).toBeVisible()
+      await expect(page.locator('.blogSummary', { hasText: title })).toBeVisible()
     })
 
     test('a blog can be liked', async ({ page }) => {
       await page.getByRole('button', { name: 'new blog' }).click()
       
+      const title = `Blog unico para likes ${Date.now()}`
       const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill('Blog unico para likes')
+      await inputs.nth(0).fill(title)
       await inputs.nth(1).fill('Joao Giraldo')
       await inputs.nth(2).fill('https://fullstackopen.com/')
       await page.getByRole('button', { name: 'create' }).click()
 
-      const blog = page.locator('.blog', { hasText: 'Blog unico para likes' })
+      const blog = page.locator('.blog', { hasText: title })
       await blog.getByRole('button', { name: 'view' }).click()
       await blog.getByRole('button', { name: 'like' }).click()
       
@@ -84,33 +97,42 @@ describe('Blog app', () => {
     })
 
     test('a blog can be deleted by the user who created it', async ({ page }) => {
-      // 1. Creamos un blog específico para eliminar
       await page.getByRole('button', { name: 'new blog' }).click()
 
+      const title = `Blog para ser eliminado ${Date.now()}`
       const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill('Blog para ser eliminado')
+      await inputs.nth(0).fill(title)
       await inputs.nth(1).fill('Joao Giraldo')
       await inputs.nth(2).fill('https://fullstackopen.com/')
       await page.getByRole('button', { name: 'create' }).click()
 
-      // 2. Ubicamos el contenedor del blog y desplegamos los detalles
-      const blog = page.locator('.blog', { hasText: 'Blog para ser eliminado' })
+      const blog = page.locator('.blog', { hasText: title })
       await blog.getByRole('button', { name: 'view' }).click()
 
-      // 3. Configuramos el manejador para aceptar el dialogo window.confirm automáticamente
       page.on('dialog', async dialog => {
         await dialog.accept()
       })
 
-      // 4. Hacemos clic en el botón de eliminar
       await blog.getByRole('button', { name: 'remove' }).click()
-
-      // 5. Verificamos que el blog ya NO esté visible en la pantalla
       await expect(blog).not.toBeVisible()
     })
 
     test('only the creator can see the delete button of a blog', async ({ page, request }) => {
-      // 1. Creamos un segundo usuario mediante la API de prueba del backend
+      await page.getByRole('button', { name: 'new blog' }).click()
+
+      const title = `Blog exclusivo del creador ${Date.now()}`
+      const inputs = page.getByRole('textbox')
+      await inputs.nth(0).fill(title)
+      await inputs.nth(1).fill('Joao Giraldo')
+      await inputs.nth(2).fill('https://fullstackopen.com/')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      const blog = page.locator('.blog', { hasText: title })
+      await blog.getByRole('button', { name: 'view' }).click()
+      await expect(blog.getByRole('button', { name: 'remove' })).toBeVisible()
+
+      await page.getByRole('button', { name: 'logout' }).click()
+
       await request.post('http://localhost:3003/api/users', {
         data: {
           username: 'seconduser',
@@ -119,31 +141,55 @@ describe('Blog app', () => {
         }
       })
 
-      // 2. El usuario principal (joao, logueado en el beforeEach) crea un blog
-      await page.getByRole('button', { name: 'new blog' }).click()
-
-      const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill('Blog exclusivo del creador')
-      await inputs.nth(1).fill('Joao Giraldo')
-      await inputs.nth(2).fill('https://fullstackopen.com/')
-      await page.getByRole('button', { name: 'create' }).click()
-
-      // 3. Verificamos que el creador sí ve el botón de eliminar
-      const blog = page.locator('.blog', { hasText: 'Blog exclusivo del creador' })
-      await blog.getByRole('button', { name: 'view' }).click()
-      await expect(blog.getByRole('button', { name: 'remove' })).toBeVisible()
-
-      // 4. Cerramos sesión del usuario creador
-      await page.getByRole('button', { name: 'logout' }).click()
-
-      // 5. Iniciamos sesión con el segundo usuario recién creado
       await page.getByRole('textbox').first().fill('seconduser')
       await page.getByRole('textbox').nth(1).fill('password123')
       await page.getByRole('button', { name: 'login' }).click()
 
-      // 6. Abrimos los detalles del mismo blog con el segundo usuario y verificamos que NO ve el botón remove
       await blog.getByRole('button', { name: 'view' }).click()
       await expect(blog.getByRole('button', { name: 'remove' })).not.toBeVisible()
+    })
+
+    test('blogs are ordered by likes with the one with most likes first', async ({ page }) => {
+      const uniqueId = Date.now()
+      const titleLess = `Blog con menos likes ${uniqueId}`
+      const titleMost = `Blog con mas likes ${uniqueId}`
+      const titleMedium = `Blog con likes intermedios ${uniqueId}`
+      const blogTitles = [titleLess, titleMost, titleMedium]
+
+      for (const title of blogTitles) {
+        await page.getByRole('button', { name: 'new blog' }).click()
+        const inputs = page.getByRole('textbox')
+        await inputs.nth(0).fill(title)
+        await inputs.nth(1).fill('Joao Giraldo')
+        await inputs.nth(2).fill('https://fullstackopen.com/')
+        await page.getByRole('button', { name: 'create' }).click()
+        await expect(page.locator('.blog', { hasText: title })).toBeVisible()
+      }
+
+      // 1. Blog con más likes (le damos 2 likes con una pausa de estabilidad para React)
+      const blogMostLikes = page.locator('.blog', { hasText: titleMost })
+      await blogMostLikes.getByRole('button', { name: 'view' }).click()
+
+      // Primer like
+      await page.locator('.blog', { hasText: titleMost }).getByRole('button', { name: 'like' }).click()
+      await expect(page.locator('.blog', { hasText: titleMost }).getByText('likes 1').first()).toBeVisible()
+      
+      // Pequeña pausa para que el estado de React se asiente por completo
+      await page.waitForTimeout(500)
+
+      // Segundo like
+      await page.locator('.blog', { hasText: titleMost }).getByRole('button', { name: 'like' }).click()
+      await expect(page.locator('.blog', { hasText: titleMost }).getByText('likes 2').first()).toBeVisible()
+
+      // 2. Blog con likes intermedios (le damos 1 like)
+      const blogMediumLikes = page.locator('.blog', { hasText: titleMedium })
+      await blogMediumLikes.getByRole('button', { name: 'view' }).click()
+      await page.locator('.blog', { hasText: titleMedium }).getByRole('button', { name: 'like' }).click()
+      await expect(page.locator('.blog', { hasText: titleMedium }).getByText('likes 1').first()).toBeVisible()
+
+      // 3. Verificamos que el primer blog de la lista sea el que tiene más likes
+      const firstBlog = page.locator('.blog').first()
+      await expect(firstBlog).toContainText(titleMost)
     })
   })
 })
