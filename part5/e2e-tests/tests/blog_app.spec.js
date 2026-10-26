@@ -18,22 +18,27 @@ describe('Blog app', () => {
   })
 
   test('Login form is shown', async ({ page }) => {
-    await expect(page.getByText('log in to application')).toBeVisible()
+    await page.goto('http://localhost:5173/login')
+    await expect(page.getByText('Log in to application')).toBeVisible()
     await expect(page.getByRole('textbox').first()).toBeVisible()
   })
 
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
+      await page.goto('http://localhost:5173/login')
       // Rellenamos el formulario con las credenciales correctas
       await page.getByRole('textbox').first().fill('joao')
       await page.getByRole('textbox').nth(1).fill('password123')
       await page.getByRole('button', { name: 'login' }).click()
 
-      // Verificamos que el usuario haya iniciado sesión correctamente (ej. mensaje de bienvenida)
+      // Verificamos que el usuario haya iniciado sesión correctamente
       await expect(page.getByText('Joao Giraldo logged in')).toBeVisible()
     })
 
     test('fails with wrong credentials', async ({ page }) => {
+      // CAMBIO 1: Navegar a /login para ver el formulario
+      await page.goto('http://localhost:5173/login')
+      
       // Rellenamos el formulario con una contraseña incorrecta
       await page.getByRole('textbox').first().fill('joao')
       await page.getByRole('textbox').nth(1).fill('wrongpassword')
@@ -43,7 +48,7 @@ describe('Blog app', () => {
       await expect(page.getByText('wrong username or password')).toBeVisible()
 
       // Verificamos que el formulario de login siga visible en pantalla
-      await expect(page.getByText('log in to application')).toBeVisible()
+      await expect(page.getByText('Log in to application')).toBeVisible()
     })
   })
 
@@ -59,8 +64,8 @@ describe('Blog app', () => {
         }
       })
 
-      // 2. Iniciamos sesión en la interfaz
-      await page.goto('http://localhost:5173')
+      // 2. CAMBIO 2: Ir a /login antes de intentar iniciar sesión
+      await page.goto('http://localhost:5173/login')
       await page.getByRole('textbox').first().fill('joao')
       await page.getByRole('textbox').nth(1).fill('password123')
       await page.getByRole('button', { name: 'login' }).click()
@@ -141,6 +146,8 @@ describe('Blog app', () => {
         }
       })
 
+      // CAMBIO 3: Ir a /login antes de iniciar sesión con el segundo usuario
+      await page.goto('http://localhost:5173/login')
       await page.getByRole('textbox').first().fill('seconduser')
       await page.getByRole('textbox').nth(1).fill('password123')
       await page.getByRole('button', { name: 'login' }).click()

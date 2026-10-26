@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom' // <- Añade esta línea
 
 const Blog = ({ blog, updateLikes, removeBlog, user }) => {
   const [visible, setVisible] = useState(false)
@@ -23,9 +24,11 @@ const Blog = ({ blog, updateLikes, removeBlog, user }) => {
 
   return (
     <div style={blogStyle} className="blog">
-      {/* Elemento visible por defecto: título y autor */}
+      {/* Elemento visible por defecto: título y autor como enlace */}
       <div className="blogSummary">
-        {blog.title} {blog.author}
+        <Link to={`/blogs/${blog.id}`}>
+          {blog.title} {blog.author}
+        </Link>
         <button onClick={toggleVisibility}>
           {visible ? 'hide' : 'view'}
         </button>
