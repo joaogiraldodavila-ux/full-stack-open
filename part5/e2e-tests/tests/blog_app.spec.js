@@ -59,34 +59,54 @@ describe('Blog app', () => {
       await page.getByRole('button', { name: 'new blog' }).click()
 
       const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill('Prueba unica de creacion')
+      await inputs.nth(0).fill('Unico blog de creacion test')
       await inputs.nth(1).fill('Joao Giraldo')
       await inputs.nth(2).fill('https://fullstackopen.com/')
       await page.getByRole('button', { name: 'create' }).click()
 
-      await expect(page.locator('.blogSummary').getByText('Prueba unica de creacion')).toBeVisible()
+      await expect(page.locator('.blogSummary', { hasText: 'Unico blog de creacion test' })).toBeVisible()
     })
 
     test('a blog can be liked', async ({ page }) => {
-      // 1. Creamos un blog con un título único para identificarlo fácilmente
       await page.getByRole('button', { name: 'new blog' }).click()
       
       const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill('Blog para probar likes unicos')
+      await inputs.nth(0).fill('Blog unico para likes')
       await inputs.nth(1).fill('Joao Giraldo')
       await inputs.nth(2).fill('https://fullstackopen.com/')
       await page.getByRole('button', { name: 'create' }).click()
 
-      // 2. Buscamos el contenedor principal del blog (.blog) que contiene el título
-      const blog = page.locator('.blog', { hasText: 'Blog para probar likes unicos' })
-      
-      // Hacemos clic en el botón 'view' para desplegar los detalles
+      const blog = page.locator('.blog', { hasText: 'Blog unico para likes' })
       await blog.getByRole('button', { name: 'view' }).click()
-
-      // 3. Hacemos clic en el botón 'like' y verificamos que el contador aumente a 1
       await blog.getByRole('button', { name: 'like' }).click()
       
       await expect(blog.getByText('likes 1')).toBeVisible()
+    })
+
+    test('a blog can be deleted by the user who created it', async ({ page }) => {
+      // 1. Creamos un blog específico para eliminar
+      await page.getByRole('button', { name: 'new blog' }).click()
+
+      const inputs = page.getByRole('textbox')
+      await inputs.nth(0).fill('Blog para ser eliminado')
+      await inputs.nth(1).fill('Joao Giraldo')
+      await inputs.nth(2).fill('https://fullstackopen.com/')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      // 2. Ubicamos el contenedor del blog y desplegamos los detalles
+      const blog = page.locator('.blog', { hasText: 'Blog para ser eliminado' })
+      await blog.getByRole('button', { name: 'view' }).click()
+
+      // 3. Configuramos el manejador para aceptar el dialogo window.confirm automáticamente
+      page.on('dialog', async dialog => {
+        await dialog.accept()
+      })
+
+      // 4. Hacemos clic en el botón de eliminar
+      await blog.getByRole('button', { name: 'remove' }).click()
+
+      // 5. Verificamos que el blog ya NO esté visible en la pantalla
+      await expect(blog).not.toBeVisible()
     })
   })
 })
