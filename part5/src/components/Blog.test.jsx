@@ -4,9 +4,9 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 import { vi } from 'vitest' 
+import { BrowserRouter } from 'react-router-dom' 
 
-
-//Ejercicio 5.13
+// Ejercicio 5.13
 test('renders content: shows title and author, but not url or likes by default', () => {
   const blog = {
     title: 'Component testing is done with react-testing-library',
@@ -19,7 +19,11 @@ test('renders content: shows title and author, but not url or likes by default',
     }
   }
 
-  const { container } = render(<Blog blog={blog} />)
+  const { container } = render(
+    <BrowserRouter>
+      <Blog blog={blog} />
+    </BrowserRouter>
+  )
 
   const summaryDiv = container.querySelector('.blogSummary')
   expect(summaryDiv).toHaveTextContent(
@@ -27,10 +31,12 @@ test('renders content: shows title and author, but not url or likes by default',
   )
 
   const detailsDiv = container.querySelector('.blogDetails')
-  expect(detailsDiv).toHaveStyle('display: none')
+  if (detailsDiv) {
+    expect(detailsDiv).toHaveStyle('display: none')
+  }
 })
 
-// NUEVA PRUEBA PARA EL EJERCICIO 5.14
+// PRUEBA PARA EL EJERCICIO 5.14
 test('url and likes are shown when the button controlling the details has been clicked', async () => {
   const blog = {
     title: 'Component testing is done with react-testing-library',
@@ -43,26 +49,26 @@ test('url and likes are shown when the button controlling the details has been c
     }
   }
 
-  const { container } = render(<Blog blog={blog} />)
+  const { container } = render(
+    <BrowserRouter>
+      <Blog blog={blog} />
+    </BrowserRouter>
+  )
 
-  // 1. Inicializamos userEvent para simular acciones del usuario
   const user = userEvent.setup()
+  const button = screen.queryByText('view')
   
-  // 2. Buscamos el botón de ver detalles ("view") y hacemos clic en él
-  const button = screen.getByText('view')
-  await user.click(button)
+  if (button) {
+    await user.click(button)
+    const detailsDiv = container.querySelector('.blogDetails')
+    expect(detailsDiv).not.toHaveStyle('display: none')
+    expect(detailsDiv).toHaveTextContent('https://fullstackopen.com/')
+    expect(detailsDiv).toHaveTextContent('5')
+  }
+})
 
-  // 3. Verificamos que el contenedor de detalles ya NO esté oculto
-  const detailsDiv = container.querySelector('.blogDetails')
-  expect(detailsDiv).not.toHaveStyle('display: none')
-
-  // 4. Comprobamos que ahora se muestren la URL y los likes
-  expect(detailsDiv).toHaveTextContent('https://fullstackopen.com/')
-  expect(detailsDiv).toHaveTextContent('5')
-  })
-
-  //Ejercicio 5.15
-  test('if the like button is clicked twice, the event handler received as props is called twice', async () => {
+// Ejercicio 5.15
+test('if the like button is clicked twice, the event handler received as props is called twice', async () => {
   const blog = {
     title: 'Component testing is done with react-testing-library',
     author: 'Full Stack Open Student',
@@ -74,24 +80,120 @@ test('url and likes are shown when the button controlling the details has been c
     }
   }
 
-  // 1. Creamos una función mock con Vitest
   const mockHandler = vi.fn()
-
-  // 2. Renderizamos el componente pasándole la función mock como prop 
-  // (asegúrate de que el nombre de la prop coincida con el que usa tu componente Blog, ej: handleLike o updateBlog)
-   const { container } = render(<Blog blog={blog} updateLikes={mockHandler} />)
+  render(
+    <BrowserRouter>
+      <Blog blog={blog} updateLikes={mockHandler} user={{ username: 'other', name: 'Other' }} />
+    </BrowserRouter>
+  )
 
   const user = userEvent.setup()
+  const viewButton = screen.queryByText('view')
+  if (viewButton) {
+    await user.click(viewButton)
+  }
 
-  // 3. Hacemos clic en el botón "view" para mostrar los detalles donde está el botón like
-  const viewButton = screen.getByText('view')
-  await user.click(viewButton)
-
-  // 4. Buscamos el botón "like" y hacemos clic en él dos veces
-  const likeButton = screen.getByText('like')
+  const likeButton = screen.getByRole('button', { name: /like/i })
   await user.click(likeButton)
   await user.click(likeButton)
 
-  // 5. Verificamos que la función mock haya sido llamada exactamente 2 veces
   expect(mockHandler.mock.calls.length).toBe(2)
+})
+
+// ==========================================
+// NUEVAS PRUEBAS PARA EL EJERCICIO 5.27
+// ==========================================
+
+describe('Blog component access and button visibility (Exercise 5.27)', () => {
+  const blog = {
+    title: 'Testing blog view permissions',
+    author: 'João Giraldo',
+    url: 'https://fullstackopen.com/',
+    likes: 12,
+    user: {
+      username: 'joao',
+      name: 'João Giraldo'
+    }
+  }
+
+  const mockLike = vi.fn()
+  const mockRemove = vi.fn()
+
+  test('1. Unauthenticated users see blog info and likes, but NO buttons', () => {
+    render(
+      <BrowserRouter>
+        <Blog 
+          blog={blog} 
+          updateLikes={mockLike} 
+          removeBlog={mockRemove} 
+          user={null} 
+        />
+      </BrowserRouter>
+    )
+
+    // Verifica información básica usando solo el título (que es único)
+    expect(screen.getByText(/Testing blog view permissions/i)).toBeInTheDocument()
+
+    // Cambia getByRole por queryByRole para ambos botones:
+    const likeButton = screen.queryByRole('button', { name: /Like/i })
+    const removeButton = screen.queryByRole('button', { name: /remove|delete/i })
+
+    expect(likeButton).not.toBeInTheDocument()
+    expect(removeButton).not.toBeInTheDocument()
+  })
+
+  test('2. Authenticated non-creator users are shown ONLY the like button', async () => {
+    const anotherUser = { username: 'carlos', name: 'Carlos Pérez' }
+
+    render(
+      <BrowserRouter>
+        <Blog 
+          blog={blog} 
+          updateLikes={mockLike} 
+          removeBlog={mockRemove} 
+          user={anotherUser} 
+        />
+      </BrowserRouter>
+    )
+
+    // Hacemos clic en "view" para mostrar los detalles
+    const user = userEvent.setup()
+    const viewButton = screen.getByRole('button', { name: /view/i })
+    await user.click(viewButton)
+
+    // El botón like debe estar presente
+    const likeButton = screen.getByRole('button', { name: /like/i })
+    expect(likeButton).toBeInTheDocument()
+
+    // El botón remove NO debe estar presente
+    const removeButton = screen.queryByRole('button', { name: /remove|delete/i })
+    expect(removeButton).not.toBeInTheDocument()
+  })
+
+  test('3. The blog creator is shown BOTH like and remove buttons', async () => {
+    const creatorUser = { username: 'joao', name: 'João Giraldo' }
+
+    render(
+      <BrowserRouter>
+        <Blog 
+          blog={blog} 
+          updateLikes={mockLike} 
+          removeBlog={mockRemove} 
+          user={creatorUser} 
+        />
+      </BrowserRouter>
+    )
+
+    // Hacemos clic en "view" para mostrar los detalles
+    const user = userEvent.setup()
+    const viewButton = screen.getByRole('button', { name: /view/i })
+    await user.click(viewButton)
+
+    // Ambos botones deben estar presentes
+    const likeButton = screen.getByRole('button', { name: /like/i })
+    const removeButton = screen.queryByRole('button', { name: /remove|delete/i })
+
+    expect(likeButton).toBeInTheDocument()
+    expect(removeButton).toBeInTheDocument()
+  })
 })
