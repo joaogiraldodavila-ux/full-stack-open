@@ -7,7 +7,7 @@ import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
 import { useRef } from 'react' // Asegúrate de importar useRef
 
-const App = () => {
+const App = () => { 
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
