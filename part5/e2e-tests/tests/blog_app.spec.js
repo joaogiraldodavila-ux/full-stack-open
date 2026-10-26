@@ -108,5 +108,42 @@ describe('Blog app', () => {
       // 5. Verificamos que el blog ya NO esté visible en la pantalla
       await expect(blog).not.toBeVisible()
     })
+
+    test('only the creator can see the delete button of a blog', async ({ page, request }) => {
+      // 1. Creamos un segundo usuario mediante la API de prueba del backend
+      await request.post('http://localhost:3003/api/users', {
+        data: {
+          username: 'seconduser',
+          name: 'Second User',
+          password: 'password123'
+        }
+      })
+
+      // 2. El usuario principal (joao, logueado en el beforeEach) crea un blog
+      await page.getByRole('button', { name: 'new blog' }).click()
+
+      const inputs = page.getByRole('textbox')
+      await inputs.nth(0).fill('Blog exclusivo del creador')
+      await inputs.nth(1).fill('Joao Giraldo')
+      await inputs.nth(2).fill('https://fullstackopen.com/')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      // 3. Verificamos que el creador sí ve el botón de eliminar
+      const blog = page.locator('.blog', { hasText: 'Blog exclusivo del creador' })
+      await blog.getByRole('button', { name: 'view' }).click()
+      await expect(blog.getByRole('button', { name: 'remove' })).toBeVisible()
+
+      // 4. Cerramos sesión del usuario creador
+      await page.getByRole('button', { name: 'logout' }).click()
+
+      // 5. Iniciamos sesión con el segundo usuario recién creado
+      await page.getByRole('textbox').first().fill('seconduser')
+      await page.getByRole('textbox').nth(1).fill('password123')
+      await page.getByRole('button', { name: 'login' }).click()
+
+      // 6. Abrimos los detalles del mismo blog con el segundo usuario y verificamos que NO ve el botón remove
+      await blog.getByRole('button', { name: 'view' }).click()
+      await expect(blog.getByRole('button', { name: 'remove' })).not.toBeVisible()
+    })
   })
 })
