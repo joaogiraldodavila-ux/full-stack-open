@@ -56,20 +56,37 @@ describe('Blog app', () => {
     })
 
     test('a new blog can be created', async ({ page }) => {
-      // 1. Abrimos el formulario
       await page.getByRole('button', { name: 'new blog' }).click()
 
-      // 2. Rellenamos los 3 inputs del formulario por orden (0: título, 1: autor, 2: url)
       const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill('Prueba automatizada con Playwright')
+      await inputs.nth(0).fill('Prueba unica de creacion')
       await inputs.nth(1).fill('Joao Giraldo')
       await inputs.nth(2).fill('https://fullstackopen.com/')
-
-      // 3. Enviamos el formulario
       await page.getByRole('button', { name: 'create' }).click()
 
-      // 4. Verificamos específicamente el contenedor del blog en la lista
-      await expect(page.locator('.blogSummary').getByText('Prueba automatizada con Playwright')).toBeVisible()
+      await expect(page.locator('.blogSummary').getByText('Prueba unica de creacion')).toBeVisible()
+    })
+
+    test('a blog can be liked', async ({ page }) => {
+      // 1. Creamos un blog con un título único para identificarlo fácilmente
+      await page.getByRole('button', { name: 'new blog' }).click()
+      
+      const inputs = page.getByRole('textbox')
+      await inputs.nth(0).fill('Blog para probar likes unicos')
+      await inputs.nth(1).fill('Joao Giraldo')
+      await inputs.nth(2).fill('https://fullstackopen.com/')
+      await page.getByRole('button', { name: 'create' }).click()
+
+      // 2. Buscamos el contenedor principal del blog (.blog) que contiene el título
+      const blog = page.locator('.blog', { hasText: 'Blog para probar likes unicos' })
+      
+      // Hacemos clic en el botón 'view' para desplegar los detalles
+      await blog.getByRole('button', { name: 'view' }).click()
+
+      // 3. Hacemos clic en el botón 'like' y verificamos que el contador aumente a 1
+      await blog.getByRole('button', { name: 'like' }).click()
+      
+      await expect(blog.getByText('likes 1')).toBeVisible()
     })
   })
 })
