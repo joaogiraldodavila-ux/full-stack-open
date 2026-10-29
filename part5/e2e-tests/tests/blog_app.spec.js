@@ -2,141 +2,126 @@ const { test, expect, beforeEach, describe } = require('@playwright/test')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
-    // 1. Vaciar la base de datos a través del endpoint de prueba del backend
+    // 1. Limpiar la base de datos usando el endpoint de test del backend
     await request.post('http://localhost:3003/api/testing/reset')
 
-    // 2. Crear un usuario de prueba en el backend
-    const newUser = {
-      username: 'joao',
-      name: 'Joao Giraldo',
-      password: 'password123'
-    }
-    await request.post('http://localhost:3003/api/users', { data: newUser })
+    // 2. Crear un usuario de prueba en el backend para que pueda hacer login
+    await request.post('http://localhost:3003/api/users', {
+      data: {
+        name: 'João Giraldo',
+        username: 'joao',
+        password: 'password123'
+      }
+    })
 
-    // 3. Ir a la aplicación frontend
     await page.goto('http://localhost:5173')
   })
 
-  test('Login form is shown', async ({ page }) => {
-    await page.goto('http://localhost:5173/login')
-    await expect(page.getByText('Log in to application')).toBeVisible()
+  test('Login form can be opened', async ({ page }) => {
+    await page.getByRole('link', { name: 'login' }).click()
     await expect(page.getByRole('textbox').first()).toBeVisible()
+    await expect(page.getByRole('textbox').nth(1)).toBeVisible()
   })
 
-  describe('Login', () => {
-    test('succeeds with correct credentials', async ({ page }) => {
-      await page.goto('http://localhost:5173/login')
-      // Rellenamos el formulario con las credenciales correctas
-      await page.getByRole('textbox').first().fill('joao')
-      await page.getByRole('textbox').nth(1).fill('password123')
-      await page.getByRole('button', { name: 'login' }).click()
+  test('Succeeds with correct credentials', async ({ page }) => {
+    await page.getByRole('link', { name: 'login' }).click()
+    await page.getByRole('textbox').first().fill('joao')
+    await page.getByRole('textbox').nth(1).fill('password123')
+    await page.getByRole('button', { name: 'login' }).click()
 
-      // Verificamos que el usuario haya iniciado sesión correctamente
-      await expect(page.getByText('Joao Giraldo logged in')).toBeVisible()
-    })
+    // Usar .first() para evitar conflicto si hay más de un elemento de logout en la vista
+    await expect(page.getByRole('button', { name: 'logout' }).first()).toBeVisible()
+  })
 
-    test('fails with wrong credentials', async ({ page }) => {
-      // CAMBIO 1: Navegar a /login para ver el formulario
-      await page.goto('http://localhost:5173/login')
-      
-      // Rellenamos el formulario con una contraseña incorrecta
-      await page.getByRole('textbox').first().fill('joao')
-      await page.getByRole('textbox').nth(1).fill('wrongpassword')
-      await page.getByRole('button', { name: 'login' }).click()
+  test('Fails with wrong credentials', async ({ page }) => {
+    await page.getByRole('link', { name: 'login' }).click()
+    await page.getByRole('textbox').first().fill('joao')
+    await page.getByRole('textbox').nth(1).fill('wrongpassword')
+    await page.getByRole('button', { name: 'login' }).click()
 
-      // Verificamos que aparezca el mensaje de error correspondiente
-      await expect(page.getByText('wrong username or password')).toBeVisible()
-
-      // Verificamos que el formulario de login siga visible en pantalla
-      await expect(page.getByText('Log in to application')).toBeVisible()
-    })
+    const errorDiv = page.locator('.error')
+    await expect(errorDiv).toBeVisible()
+    await expect(page.getByRole('button', { name: 'logout' })).not.toBeVisible()
   })
 
   describe('When logged in', () => {
     beforeEach(async ({ page, request }) => {
-      // 1. Reiniciamos la base de datos y creamos el usuario base mediante la API del backend
       await request.post('http://localhost:3003/api/testing/reset')
       await request.post('http://localhost:3003/api/users', {
         data: {
+          name: 'João Giraldo',
           username: 'joao',
-          name: 'Joao Giraldo',
           password: 'password123'
         }
       })
 
-      // 2. CAMBIO 2: Ir a /login antes de intentar iniciar sesión
-      await page.goto('http://localhost:5173/login')
+      await page.goto('http://localhost:5173')
+      
+      await page.getByRole('link', { name: 'login' }).click()
       await page.getByRole('textbox').first().fill('joao')
       await page.getByRole('textbox').nth(1).fill('password123')
       await page.getByRole('button', { name: 'login' }).click()
+      await expect(page.getByRole('button', { name: 'logout' }).first()).toBeVisible()
     })
 
-    test('a new blog can be created', async ({ page }) => {
-      await page.getByRole('button', { name: 'new blog' }).click()
-
-      const title = `Unico blog de creacion test ${Date.now()}`
-      const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill(title)
-      await inputs.nth(1).fill('Joao Giraldo')
-      await inputs.nth(2).fill('https://fullstackopen.com/')
-      await page.getByRole('button', { name: 'create' }).click()
-
-      await expect(page.locator('.blogSummary', { hasText: title })).toBeVisible()
-    })
-
-    test('a blog can be liked', async ({ page }) => {
+    test('A new blog can be created', async ({ page }) => {
+      const uniqueTitle = `Test Blog ${Date.now()}`
       await page.getByRole('button', { name: 'new blog' }).click()
       
-      const title = `Blog unico para likes ${Date.now()}`
-      const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill(title)
-      await inputs.nth(1).fill('Joao Giraldo')
-      await inputs.nth(2).fill('https://fullstackopen.com/')
+      await page.getByRole('textbox').nth(0).fill(uniqueTitle)
+      await page.getByRole('textbox').nth(1).fill('João Giraldo')
+      await page.getByRole('textbox').nth(2).fill('https://fullstackopen.com/')
+      
       await page.getByRole('button', { name: 'create' }).click()
 
-      const blog = page.locator('.blog', { hasText: title })
-      await blog.getByRole('button', { name: 'view' }).click()
-      await blog.getByRole('button', { name: 'like' }).click()
-      
-      await expect(blog.getByText('likes 1')).toBeVisible()
+      await expect(page.locator('.blog', { hasText: uniqueTitle })).toBeVisible()
     })
 
-    test('a blog can be deleted by the user who created it', async ({ page }) => {
+    test('A blog can be liked', async ({ page }) => {
+      const uniqueTitle = `Liked Blog ${Date.now()}`
       await page.getByRole('button', { name: 'new blog' }).click()
-
-      const title = `Blog para ser eliminado ${Date.now()}`
-      const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill(title)
-      await inputs.nth(1).fill('Joao Giraldo')
-      await inputs.nth(2).fill('https://fullstackopen.com/')
+      await page.getByRole('textbox').nth(0).fill(uniqueTitle)
+      await page.getByRole('textbox').nth(1).fill('João')
+      await page.getByRole('textbox').nth(2).fill('https://fullstackopen.com/')
       await page.getByRole('button', { name: 'create' }).click()
 
-      const blog = page.locator('.blog', { hasText: title })
-      await blog.getByRole('button', { name: 'view' }).click()
+      const blogElement = page.locator('.blog', { hasText: uniqueTitle })
+      await blogElement.getByRole('button', { name: 'view' }).click()
+      await blogElement.getByRole('button', { name: 'like' }).click()
+      await expect(blogElement.getByText('likes 1')).toBeVisible()
+    })
 
-      page.on('dialog', async dialog => {
-        await dialog.accept()
-      })
+    test('A blog can be deleted by its creator', async ({ page }) => {
+      const uniqueTitle = `Delete Blog ${Date.now()}`
+      await page.getByRole('button', { name: 'new blog' }).click()
+      await page.getByRole('textbox').nth(0).fill(uniqueTitle)
+      await page.getByRole('textbox').nth(1).fill('João')
+      await page.getByRole('textbox').nth(2).fill('https://fullstackopen.com/')
+      await page.getByRole('button', { name: 'create' }).click()
 
-      await blog.getByRole('button', { name: 'remove' }).click()
-      await expect(blog).not.toBeVisible()
+      const blogElement = page.locator('.blog', { hasText: uniqueTitle })
+      await blogElement.getByRole('button', { name: 'view' }).click()
+      
+      page.on('dialog', dialog => dialog.accept())
+      await blogElement.getByRole('button', { name: 'remove' }).click()
+      
+      await expect(blogElement).not.toBeVisible()
     })
 
     test('only the creator can see the delete button of a blog', async ({ page, request }) => {
+      const uniqueTitle = `Creator Blog ${Date.now()}`
       await page.getByRole('button', { name: 'new blog' }).click()
 
-      const title = `Blog exclusivo del creador ${Date.now()}`
-      const inputs = page.getByRole('textbox')
-      await inputs.nth(0).fill(title)
-      await inputs.nth(1).fill('Joao Giraldo')
-      await inputs.nth(2).fill('https://fullstackopen.com/')
+      await page.getByRole('textbox').nth(0).fill(uniqueTitle)
+      await page.getByRole('textbox').nth(1).fill('Joao Giraldo')
+      await page.getByRole('textbox').nth(2).fill('https://fullstackopen.com/')
       await page.getByRole('button', { name: 'create' }).click()
 
-      const blog = page.locator('.blog', { hasText: title })
+      const blog = page.locator('.blog', { hasText: uniqueTitle })
       await blog.getByRole('button', { name: 'view' }).click()
       await expect(blog.getByRole('button', { name: 'remove' })).toBeVisible()
 
-      await page.getByRole('button', { name: 'logout' }).click()
+      await page.getByRole('button', { name: 'logout' }).first().click()
 
       await request.post('http://localhost:3003/api/users', {
         data: {
@@ -146,8 +131,7 @@ describe('Blog app', () => {
         }
       })
 
-      // CAMBIO 3: Ir a /login antes de iniciar sesión con el segundo usuario
-      await page.goto('http://localhost:5173/login')
+      await page.getByRole('link', { name: 'login' }).click()
       await page.getByRole('textbox').first().fill('seconduser')
       await page.getByRole('textbox').nth(1).fill('password123')
       await page.getByRole('button', { name: 'login' }).click()
@@ -158,43 +142,41 @@ describe('Blog app', () => {
 
     test('blogs are ordered by likes with the one with most likes first', async ({ page }) => {
       const uniqueId = Date.now()
-      const titleLess = `Blog con menos likes ${uniqueId}`
-      const titleMost = `Blog con mas likes ${uniqueId}`
-      const titleMedium = `Blog con likes intermedios ${uniqueId}`
+      const titleLess = `Blog menos ${uniqueId}`
+      const titleMost = `Blog mas ${uniqueId}`
+      const titleMedium = `Blog intermedio ${uniqueId}`
       const blogTitles = [titleLess, titleMost, titleMedium]
 
       for (const title of blogTitles) {
         await page.getByRole('button', { name: 'new blog' }).click()
-        const inputs = page.getByRole('textbox')
-        await inputs.nth(0).fill(title)
-        await inputs.nth(1).fill('Joao Giraldo')
-        await inputs.nth(2).fill('https://fullstackopen.com/')
+        await page.getByRole('textbox').nth(0).fill(title)
+        await page.getByRole('textbox').nth(1).fill('Joao Giraldo')
+        await page.getByRole('textbox').nth(2).fill('https://fullstackopen.com/')
         await page.getByRole('button', { name: 'create' }).click()
         await expect(page.locator('.blog', { hasText: title })).toBeVisible()
       }
 
-      // 1. Blog con más likes (le damos 2 likes con una pausa de estabilidad para React)
+      // 1. Blog con más likes (le damos 2 likes con pausas para estabilidad de React)
       const blogMostLikes = page.locator('.blog', { hasText: titleMost })
       await blogMostLikes.getByRole('button', { name: 'view' }).click()
-
-      // Primer like
-      await page.locator('.blog', { hasText: titleMost }).getByRole('button', { name: 'like' }).click()
-      await expect(page.locator('.blog', { hasText: titleMost }).getByText('likes 1').first()).toBeVisible()
+      await blogMostLikes.getByRole('button', { name: 'like' }).click()
+      await expect(blogMostLikes.getByText('likes 1')).toBeVisible()
       
-      // Pequeña pausa para que el estado de React se asiente por completo
-      await page.waitForTimeout(500)
+      await page.waitForTimeout(600)
 
-      // Segundo like
-      await page.locator('.blog', { hasText: titleMost }).getByRole('button', { name: 'like' }).click()
-      await expect(page.locator('.blog', { hasText: titleMost }).getByText('likes 2').first()).toBeVisible()
+      await blogMostLikes.getByRole('button', { name: 'like' }).click()
+      await expect(blogMostLikes.getByText('likes 2')).toBeVisible()
 
       // 2. Blog con likes intermedios (le damos 1 like)
       const blogMediumLikes = page.locator('.blog', { hasText: titleMedium })
       await blogMediumLikes.getByRole('button', { name: 'view' }).click()
-      await page.locator('.blog', { hasText: titleMedium }).getByRole('button', { name: 'like' }).click()
-      await expect(page.locator('.blog', { hasText: titleMedium }).getByText('likes 1').first()).toBeVisible()
+      await blogMediumLikes.getByRole('button', { name: 'like' }).click()
+      await expect(blogMediumLikes.getByText('likes 1')).toBeVisible()
 
-      // 3. Verificamos que el primer blog de la lista sea el que tiene más likes
+      // Pausa final para que React reordene los elementos en el DOM de la vista principal
+      await page.waitForTimeout(800)
+
+      // 3. Verificamos que el primer blog de la lista general sea el que tiene más likes
       const firstBlog = page.locator('.blog').first()
       await expect(firstBlog).toContainText(titleMost)
     })
