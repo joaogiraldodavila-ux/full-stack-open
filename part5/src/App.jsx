@@ -86,7 +86,8 @@ const App = () => {
     }
     try {
       const returnedBlog = await blogService.update(id, updatedBlog)
-      setBlogs(blogs.map(blog => blog.id === id ? { ...returnedBlog, user: blogToLike.user } : blog))
+      // Mantener la estructura original del blog y actualizar solo los likes para preservar la referencia completa del objeto user
+      setBlogs(blogs.map(blog => blog.id === id ? { ...blogToLike, likes: returnedBlog.likes } : blog))
     } catch (exception) {
       setErrorMessage('Error updating likes')
       setTimeout(() => setErrorMessage(null), 5000)
