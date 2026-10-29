@@ -122,23 +122,22 @@ const App = () => {
 
   return (
     <div>
-      {/* Barra de navegación con React Router */}
-      <div style={navStyle}>
-       <Link to="/" style={{ marginRight: '10px' }}>blogs</Link>
-       {user && (
-      <button onClick={() => navigate('/create')} style={{ marginRight: '10px' }}>
-      new blog
-      </button>
-      )}
-       {user === null ? (
-       <Link to="/login">login</Link>
-       ) : (
-       <>
-      <span style={{ marginRight: '10px' }}>{user.name} logged in </span>
-      <button onClick={handleLogout}>logout</button>
-       </>
-     )}
-    </div>
+      {/* Barra de navegación estilizada (Ejercicio 5.30) */}
+      <div className="navbar">
+        <span className="navbar-brand">Blog App</span>
+        <div className="navbar-links">
+          <Link to="/">blogs</Link>
+          <button onClick={() => navigate('/create')}>new blog</button>
+          {user === null ? (
+            <Link to="/login">login</Link>
+          ) : (
+            <>
+              <span>{user.name} logged in</span>
+              <button onClick={handleLogout}>logout</button>
+            </>
+          )}
+        </div>
+      </div>
 
       <h2>blogs</h2>
       <Notification message={errorMessage} type="error" />
