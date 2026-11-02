@@ -32,4 +32,10 @@ export const useAnecdotes = create((set) => ({
       ),
     }))
   },
+  // Nueva acción para agregar anécdotas
+  createAnecdote: (content) => {
+    set((state) => ({
+      anecdotes: [...state.anecdotes, asObject(content)]
+    }))
+  }
 }))
