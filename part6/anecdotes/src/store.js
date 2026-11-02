@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import anecdoteService from './services/anecdotes' // Importa tu servicio
+import anecdoteService from './services/anecdotes'
+import { useNotificationStore } from './notificationStore' // <-- 1. Importamos el store de notificaciones
 
 export const useAnecdotes = create((set, get) => ({
   anecdotes: [],
@@ -7,26 +8,27 @@ export const useAnecdotes = create((set, get) => ({
   setAnecdotes: (anecdotes) => set({ anecdotes }),
   setFilter: (value) => set({ filter: value }),
 
-  // MODIFICAMOS VOTE PARA QUE SEA ASÍNCRONO Y PERSISTA EN EL BACKEND
+  // Al votar una anécdota
   vote: async (id) => {
     const anecdotes = get().anecdotes
     const anecdoteToChange = anecdotes.find(a => a.id === id)
     
-    // Creamos el objeto modificado incrementando los votos en 1
     const changedAnecdote = {
       ...anecdoteToChange,
       votes: anecdoteToChange.votes + 1
     }
 
-    // 1. Guardamos el cambio en el backend usando el servicio
     await anecdoteService.update(id, changedAnecdote)
 
-    // 2. Actualizamos el estado local de Zustand
     set({
       anecdotes: anecdotes.map(a => a.id !== id ? a : changedAnecdote)
     })
+
+    // <-- 2. Disparamos la notificación de voto por 5 segundos
+    useNotificationStore.getState().showNotification(`You voted '${anecdoteToChange.content}'`, 5)
   },
 
+  // Al crear una anécdota (si manejas la creación aquí o en el componente)
   createAnecdote: (content) => set((state) => ({
     anecdotes: [...state.anecdotes, content]
   }))

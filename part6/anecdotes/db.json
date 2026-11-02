@@ -37,7 +37,7 @@
     },
     {
       "content": "Obelisco el atormentador",
-      "votes": 8,
+      "votes": 10,
       "id": "-HiUiasy4WY"
     },
     {
@@ -49,6 +49,16 @@
       "content": "Y dale U",
       "votes": 2,
       "id": "bSDRzjuri6w"
+    },
+    {
+      "content": "Vamos muchachos que tenemos que ganar",
+      "votes": 0,
+      "id": "yx-6xxdNBbg"
+    },
+    {
+      "content": "Ole ole ole ole Peru",
+      "votes": 0,
+      "id": "7VeYFNnGiYk"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
