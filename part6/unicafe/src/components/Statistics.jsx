@@ -6,18 +6,8 @@ const Statistics = () => {
   const bad = useCounterStore((state) => state.bad)
 
   const all = good + neutral + bad
-
-  if (all === 0) {
-    return (
-      <div>
-        <h2>statistics</h2>
-        <p>No feedback given</p>
-      </div>
-    )
-  }
-
-  const average = (good * 1 + neutral * 0 + bad * -1) / all
-  const positive = (good / all) * 100
+  const average = all === 0 ? 0 : (good - bad) / all
+  const positive = all === 0 ? 0 : (good / all) * 100
 
   return (
     <div>
@@ -28,8 +18,8 @@ const Statistics = () => {
           <tr><td>neutral</td><td>{neutral}</td></tr>
           <tr><td>bad</td><td>{bad}</td></tr>
           <tr><td>all</td><td>{all}</td></tr>
-          <tr><td>average</td><td>{average.toFixed(1)}</td></tr>
-          <tr><td>positive</td><td>{positive.toFixed(1)} %</td></tr>
+          <tr><td>average</td><td>{average}</td></tr>
+          <tr><td>positive</td><td>{positive} %</td></tr>
         </tbody>
       </table>
     </div>
