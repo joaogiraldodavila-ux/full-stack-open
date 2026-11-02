@@ -1,10 +1,10 @@
 import { useAnecdotes } from "./store"
 
 const App = () => {
-  const anecdotes = useAnecdotes()
+  const { anecdotes, vote } = useAnecdotes()
 
-  const vote = (id) => {
-    console.log("vote", id)
+  const handleVote = (id) => {
+    vote(id)
   }
 
   return (
@@ -15,7 +15,7 @@ const App = () => {
           <div>{anecdote.content}</div>
           <div>
             has {anecdote.votes}
-            <button onClick={() => vote(anecdote.id)}>vote</button>
+            <button onClick={() => handleVote(anecdote.id)}>vote</button>
           </div>
         </div>
       ))}
