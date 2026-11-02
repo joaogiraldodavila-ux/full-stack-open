@@ -28,8 +28,16 @@ export const useAnecdotes = create((set, get) => ({
     useNotificationStore.getState().showNotification(`You voted '${anecdoteToChange.content}'`, 5)
   },
 
-  // Al crear una anécdota (si manejas la creación aquí o en el componente)
-  createAnecdote: (content) => set((state) => ({
-    anecdotes: [...state.anecdotes, content]
+  // Acción para eliminar anécdota en el backend y en el estado local
+  removeAnecdote: async (id) => {
+    await anecdoteService.remove(id)
+    set((state) => ({
+      anecdotes: state.anecdotes.filter((a) => a.id !== id)
+    }))
+  }, // <-- ¡Asegúrate de poner esta coma aquí!
+
+  // Al crear una anécdota
+  createAnecdote: (newAnecdote) => set((state) => ({
+    anecdotes: [...state.anecdotes, newAnecdote]
   }))
 }))

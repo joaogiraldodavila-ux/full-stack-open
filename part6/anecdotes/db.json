@@ -3,12 +3,12 @@
     {
       "content": "If it hurts, do it more often",
       "id": "47145",
-      "votes": 0
+      "votes": 2
     },
     {
       "content": "Adding manpower to a late software project makes it later!",
       "id": "21149",
-      "votes": 0
+      "votes": 1
     },
     {
       "content": "The first 90 percent of the code accounts for the first 10 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.",
@@ -42,23 +42,18 @@
     },
     {
       "content": "hola como estas",
-      "votes": 3,
+      "votes": 4,
       "id": "qvl5FVXNJ_8"
     },
     {
       "content": "Y dale U",
-      "votes": 2,
+      "votes": 3,
       "id": "bSDRzjuri6w"
     },
     {
       "content": "Vamos muchachos que tenemos que ganar",
       "votes": 0,
       "id": "yx-6xxdNBbg"
-    },
-    {
-      "content": "Ole ole ole ole Peru",
-      "votes": 0,
-      "id": "7VeYFNnGiYk"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
