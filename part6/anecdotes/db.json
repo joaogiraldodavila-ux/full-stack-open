@@ -32,18 +32,23 @@
     },
     {
       "content": "La lucha por un sueño",
-      "votes": 0,
+      "votes": 5,
       "id": "NThasiK4vuk"
     },
     {
       "content": "Obelisco el atormentador",
-      "votes": 0,
+      "votes": 8,
       "id": "-HiUiasy4WY"
     },
     {
       "content": "hola como estas",
-      "votes": 0,
+      "votes": 3,
       "id": "qvl5FVXNJ_8"
+    },
+    {
+      "content": "Y dale U",
+      "votes": 2,
+      "id": "bSDRzjuri6w"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
