@@ -1,14 +1,19 @@
 import { useAnecdotes } from '../store'
+import anecdoteService from '../services/anecdotes'
 
 const AnecdoteForm = () => {
   const { createAnecdote } = useAnecdotes()
 
-  const addAnecdote = (event) => {
+  const addAnecdote = async (event) => {
     event.preventDefault()
     const content = event.target.anecdote.value
-    event.target.anecdote.value = ''
+
     if (content.trim() !== '') {
-      createAnecdote(content)
+      event.target.anecdote.value = ''
+      // 1. Guardamos la nueva anécdota en el backend mediante POST
+      const newAnecdote = await anecdoteService.createNew(content)
+      // 2. Pasamos el objeto devuelto por el servidor al store de Zustand
+      createAnecdote(newAnecdote)
     }
   }
 
