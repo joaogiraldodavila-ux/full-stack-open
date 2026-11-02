@@ -15,19 +15,19 @@ jobs:
           node-version: 24
 
       - name: Install unicafe dependencies
-        working-directory: unicafe
+        working-directory: part6/unicafe
         run: npm ci
 
       - name: Install test dependencies
-        working-directory: unicafe-tests
+        working-directory: part6/unicafe-tests
         run: npm ci
 
       - name: Install Playwright browsers
-        working-directory: unicafe-tests
+        working-directory: part6/unicafe-tests
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        working-directory: unicafe-tests
+        working-directory: part6/unicafe-tests
         run: npx playwright test
 
       - name: Upload Playwright report
