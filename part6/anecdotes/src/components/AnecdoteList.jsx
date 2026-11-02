@@ -1,14 +1,20 @@
 import { useAnecdotes } from '../store'
 
 const AnecdoteList = () => {
-  const { anecdotes, vote } = useAnecdotes()
+  const { anecdotes, filter = '', vote } = useAnecdotes()
 
   const handleVote = (id) => {
     vote(id)
   }
 
-  // Ordenamos las anécdotas de mayor a menor número de votos usando toSorted
-  const sortedAnecdotes = anecdotes.toSorted((a, b) => b.votes - a.votes)
+  // Filtramos de forma segura asegurando que filter sea un string
+  const searchTerm = filter ? filter.toLowerCase() : ''
+  
+  const filteredAnecdotes = anecdotes.filter((anecdote) =>
+    anecdote.content.toLowerCase().includes(searchTerm)
+  )
+
+  const sortedAnecdotes = filteredAnecdotes.toSorted((a, b) => b.votes - a.votes)
 
   return (
     <div>

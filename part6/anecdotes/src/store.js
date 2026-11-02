@@ -22,20 +22,16 @@ const asObject = (anecdote) => {
 }
 
 export const useAnecdotes = create((set) => ({
+  // AQUÍ ESTÁ LA CORRECCIÓN CLAVE: Mapeamos cada texto inicial con asObject
   anecdotes: initialAnecdotes.map(asObject),
-  vote: (id) => {
-    set((state) => ({
-      anecdotes: state.anecdotes.map((anecdote) =>
-        anecdote.id === id
-          ? { ...anecdote, votes: anecdote.votes + 1 }
-          : anecdote
-      ),
-    }))
-  },
-  // Nueva acción para agregar anécdotas
-  createAnecdote: (content) => {
-    set((state) => ({
-      anecdotes: [...state.anecdotes, asObject(content)]
-    }))
-  }
+  filter: '',
+  setFilter: (value) => set({ filter: value }),
+  vote: (id) => set((state) => ({
+    anecdotes: state.anecdotes.map((a) => 
+      a.id === id ? { ...a, votes: a.votes + 1 } : a
+    )
+  })),
+  createAnecdote: (content) => set((state) => ({
+    anecdotes: [...state.anecdotes, asObject(content)]
+  }))
 }))
