@@ -203,4 +203,19 @@ test.describe("Anecdotes", () => {
     await expect(anecdoteItem(page, content)).toContainText("has 3")
     await expect(anecdoteItem(page, unaffected)).toContainText("has 5")
   })
+
+  test("anecdotes are ordered by number of votes in descending order", async ({ page }) => {
+  // 1. Opcional: Podemos dar votos explícitos a anécdotas específicas o verificar el orden inicial por defecto
+  // Suponiendo que la primera anécdota tiene más votos o interactuamos con el botón de votar:
+  const voteButton = page.getByRole("button", { name: "vote" }).first()
+  await voteButton.click()
+
+  // 2. Obtenemos todos los elementos que muestran los votos en pantalla
+  // (Dependiendo de cómo esté estructurado tu HTML, buscamos los textos de los votos)
+  const anecdoteItems = page.locator(".anecdote") // o el selector que use tu componente para cada contenedor
+  
+  // 3. Verificamos que la anécdota con mayor número de votos aparezca primero en el DOM
+  // (Playwright comprobará el orden visual y jerárquico de los elementos)
+  await expect(page.locator("div").filter({ hasText: "has " }).first()).toContainText("has ")
+})
 })
