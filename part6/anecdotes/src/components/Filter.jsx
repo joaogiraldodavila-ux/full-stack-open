@@ -1,7 +1,7 @@
 import { useAnecdotes } from '../store'
 
 const Filter = () => {
-  const setFilter = useAnecdotes((state) => state.setFilter)
+  const setFilter = useAnecdotes(state => state.setFilter)
 
   const handleChange = (event) => {
     setFilter(event.target.value)
@@ -13,7 +13,7 @@ const Filter = () => {
 
   return (
     <div style={style}>
-      filter <input onChange={handleChange} data-testid="filter" />
+      filter <input data-testid="filter" onChange={handleChange} />
     </div>
   )
 }

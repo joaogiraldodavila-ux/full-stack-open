@@ -5,11 +5,13 @@ let timeoutId = null
 export const useNotificationStore = create((set) => ({
   message: null,
   showNotification: (text, seconds = 5) => {
-    set({ message: text })
-
+    // Si ya había un temporizador corriendo, lo cancelamos antes de crear uno nuevo
     if (timeoutId) {
       clearTimeout(timeoutId)
+      timeoutId = null
     }
+
+    set({ message: text })
 
     timeoutId = setTimeout(() => {
       set({ message: null })

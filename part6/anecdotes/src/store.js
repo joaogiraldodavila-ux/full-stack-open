@@ -25,7 +25,7 @@ export const useAnecdotes = create((set, get) => ({
     })
 
     // <-- 2. Disparamos la notificación de voto por 5 segundos
-    useNotificationStore.getState().showNotification(`You voted '${anecdoteToChange.content}'`, 5)
+    useNotificationStore.getState().showNotification(`you voted '${anecdoteToChange.content}'`, 5)
   },
 
   // Acción para eliminar anécdota en el backend y en el estado local
