@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getAnecdotes } from './requests'
+import AnecdoteForm from './components/AnecdoteForm'
 
 const App = () => {
   const result = useQuery({
@@ -25,6 +26,8 @@ const App = () => {
   return (
     <div>
       <h2>Anecdote app</h2>
+      
+      <AnecdoteForm />
       
       {anecdotes.map(anecdote =>
         <div key={anecdote.id}>
