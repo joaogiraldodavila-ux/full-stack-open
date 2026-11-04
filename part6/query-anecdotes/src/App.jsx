@@ -1,22 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getAnecdotes, updateAnecdote } from './requests'
+import { useGetAnecdotes, useAnecdoteMutations } from './hooks/useAnecdotes'
 import AnecdoteForm from './components/AnecdoteForm'
 
 const App = () => {
-  const queryClient = useQueryClient()
-
-  const updateAnecdoteMutation = useMutation({
-    mutationFn: updateAnecdote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
-    }
-  })
-
-  const result = useQuery({
-    queryKey: ['anecdotes'],
-    queryFn: getAnecdotes,
-    retry: 1
-  })
+  const result = useGetAnecdotes()
+  const { updateAnecdoteMutation } = useAnecdoteMutations()
 
   if (result.isPending) {
     return <div>loading data...</div>
