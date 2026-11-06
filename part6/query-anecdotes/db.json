@@ -8,7 +8,7 @@
     {
       "id": "f1b6ab81-e445-4aaa-acb1-57243f1de3d5",
       "content": "There are two hard things in computer science",
-      "votes": 3
+      "votes": 4
     },
     {
       "id": "28eda8f9-7b68-485b-ac21-295a0fa57b8d",
@@ -24,6 +24,26 @@
       "id": "3a0ad342-224a-453c-80cd-40e2e3ba239b",
       "content": "Real artists ship code",
       "votes": 7
+    },
+    {
+      "content": "Ole ole ole ole Peru",
+      "votes": 1,
+      "id": "bc52609b-96da-42ac-9406-38bbc4a77a37"
+    },
+    {
+      "content": "Obelisco el atormentador",
+      "votes": 2,
+      "id": "63dee72a-c7b0-478f-baec-97419ecd5cc2"
+    },
+    {
+      "content": "La lucha por un sueño",
+      "votes": 0,
+      "id": "a890a561-1cc5-4c99-943f-4d4cef78464d"
+    },
+    {
+      "content": "Vamos muchachos que tenemos que ganar",
+      "votes": 0,
+      "id": "847fdd83-2fdc-43d2-a272-e269e116e263"
     }
   ]
 }

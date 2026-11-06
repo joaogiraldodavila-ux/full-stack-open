@@ -1,36 +1,35 @@
-import { useAnecdotes } from '../store'
-import anecdoteService from '../services/anecdotes'
-import { useNotificationStore } from '../notificationStore'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createAnecdote } from '../requests'
+import { useNotificationDispatch } from '../NotificationContext'
 
 const AnecdoteForm = () => {
-  const { createAnecdote } = useAnecdotes()
-  // Importamos la función para mostrar notificaciones fuera de React hooks si usamos getState(), 
-  // o podemos invocarla directamente:
+  const queryClient = useQueryClient()
+  const dispatch = useNotificationDispatch()
 
-  const addAnecdote = async (event) => {
+  const newAnecdoteMutation = useMutation({
+    mutationFn: createAnecdote,
+    onSuccess: (newAnecdote) => {
+      queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+      dispatch({ type: 'SET_NOTIFICATION', payload: `anecdote '${newAnecdote.content}' created` })
+      setTimeout(() => {
+        dispatch({ type: 'CLEAR_NOTIFICATION' })
+      }, 5000)
+    }
+  })
+
+  const onCreate = (event) => {
     event.preventDefault()
     const content = event.target.anecdote.value
-
-    if (content.trim() !== '') {
-      event.target.anecdote.value = ''
-
-      // 1. Guardamos la nueva anécdota en el backend mediante POST
-      const newAnecdote = await anecdoteService.createNew(content)
-
-      // 2. Pasamos el objeto devuelto por el servidor al store de Zustand
-      createAnecdote(newAnecdote)
-
-      // 3. ¡Disparamos la notificación aquí!
-      useNotificationStore.getState().showNotification(`You created ${content}'`, 5)
-    }
+    event.target.anecdote.value = ''
+    newAnecdoteMutation.mutate({ content, votes: 0 })
   }
 
   return (
     <div>
-      <h2>create new</h2>
-      <form onSubmit={addAnecdote}>
+      <h3>create new</h3>
+      <form onSubmit={onCreate}>
         <div>
-          <input name="anecdote" data-testid="new" />
+          <input name='anecdote' data-testid="new" />
         </div>
         <button type="submit">create</button>
       </form>

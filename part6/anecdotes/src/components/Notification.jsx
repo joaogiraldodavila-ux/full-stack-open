@@ -1,22 +1,14 @@
-import { useNotificationStore } from '../notificationStore'
+import ReactDOM from 'react-dom/client'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import App from './App'
+import { NotificationContextProvider } from './NotificationContext'
 
-const Notification = () => {
-  const message = useNotificationStore((state) => state.message)
+const queryClient = new QueryClient()
 
-  const style = {
-    border: 'solid',
-    padding: 10,
-    borderWidth: 1,
-    marginBottom: 10
-  }
-
-  if (!message) return null
-
-  return (
-    <div style={style} data-testid="notification">
-      {message}
-    </div>
-  )
-}
-
-export default Notification
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <QueryClientProvider client={queryClient}>
+    <NotificationContextProvider>
+      <App />
+    </NotificationContextProvider>
+  </QueryClientProvider>
+)
