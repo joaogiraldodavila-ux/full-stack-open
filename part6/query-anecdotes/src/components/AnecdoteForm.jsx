@@ -10,8 +10,15 @@ const AnecdoteForm = () => {
     mutationFn: createAnecdote,
     onSuccess: (newAnecdote) => {
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
-      // Disparar notificación de creación por 5 segundos
       dispatch({ type: 'SET_NOTIFICATION', payload: `anecdote '${newAnecdote.content}' created` })
+      setTimeout(() => {
+        dispatch({ type: 'CLEAR_NOTIFICATION' })
+      }, 5000)
+    },
+    onError: (error) => {
+      // Capturamos el mensaje de error retornado por el servidor
+      const errorMessage = error.response?.data?.error || 'too short anecdote, must have length 5 or more'
+      dispatch({ type: 'SET_NOTIFICATION', payload: errorMessage })
       setTimeout(() => {
         dispatch({ type: 'CLEAR_NOTIFICATION' })
       }, 5000)
