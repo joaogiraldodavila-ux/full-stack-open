@@ -2,11 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getAnecdotes, updateAnecdote } from './requests'
 import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
-import { useNotify } from './NotificationContext' // 👈 Importamos el nuevo hook
+import { useNotify } from './NotificationContext' // Importamos el nuevo hook
 
 const App = () => {
   const queryClient = useQueryClient()
-  const notify = useNotify() // 👈 Inicializamos el hook
+  const notify = useNotify() // Inicializamos el hook
 
   const result = useQuery({
     queryKey: ['anecdotes'],
@@ -18,7 +18,7 @@ const App = () => {
     mutationFn: updateAnecdote,
     onSuccess: (updatedAnecdote) => {
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
-      notify(`anecdote '${updatedAnecdote.content}' voted`) // 👈 ¡Una sola línea limpia y directa!
+      notify(`anecdote '${updatedAnecdote.content}' voted`) // ¡Una sola línea limpia y directa!
     }
   })
 

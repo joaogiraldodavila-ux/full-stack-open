@@ -3,8 +3,6 @@ import { useNotificationValue } from '../NotificationContext'
 const Notification = () => {
   const notification = useNotificationValue()
 
-  if (!notification) return null
-
   const style = {
     border: 'solid',
     padding: 10,
@@ -12,8 +10,10 @@ const Notification = () => {
     marginBottom: 5
   }
 
+  if (!notification) return null
+
   return (
-    <div style={style}>
+    <div style={style} data-testid="notification"> {/*Añadimos esta línea */}
       {notification}
     </div>
   )

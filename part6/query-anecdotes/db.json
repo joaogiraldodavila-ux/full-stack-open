@@ -1,69 +1,29 @@
 {
   "anecdotes": [
     {
-      "id": "ebd6e7d7-6bb5-40d8-a7e8-49f0e1b5d2d5",
+      "id": "34e690d9-68f5-48ca-ae85-827e5a02518c",
       "content": "Make it work, then make it fast",
       "votes": 0
     },
     {
-      "id": "f1b6ab81-e445-4aaa-acb1-57243f1de3d5",
+      "id": "fcb619da-2819-4dbe-ab66-969aa97d5104",
       "content": "There are two hard things in computer science",
-      "votes": 4
+      "votes": 3
     },
     {
-      "id": "28eda8f9-7b68-485b-ac21-295a0fa57b8d",
+      "id": "ed5fe53f-a1de-4136-9ca5-c01b8288913d",
       "content": "Untested code is broken code",
-      "votes": 4
+      "votes": 3
     },
     {
-      "id": "a423cf43-b2e6-4538-bae3-cc80cb2f158a",
+      "id": "5c6f7793-a5dc-4d0a-b4e8-6b07cec2b8e3",
       "content": "Simplicity is the ultimate sophistication",
-      "votes": 6
+      "votes": 5
     },
     {
-      "id": "3a0ad342-224a-453c-80cd-40e2e3ba239b",
+      "id": "15f54649-9c3e-4f7c-bd24-473d24e0ce37",
       "content": "Real artists ship code",
-      "votes": 8
-    },
-    {
-      "content": "Ole ole ole ole Peru",
-      "votes": 1,
-      "id": "bc52609b-96da-42ac-9406-38bbc4a77a37"
-    },
-    {
-      "content": "Obelisco el atormentador",
-      "votes": 2,
-      "id": "63dee72a-c7b0-478f-baec-97419ecd5cc2"
-    },
-    {
-      "content": "La lucha por un sueño",
-      "votes": 0,
-      "id": "a890a561-1cc5-4c99-943f-4d4cef78464d"
-    },
-    {
-      "content": "Vamos muchachos que tenemos que ganar",
-      "votes": 0,
-      "id": "847fdd83-2fdc-43d2-a272-e269e116e263"
-    },
-    {
-      "content": "Y dale U",
-      "votes": 0,
-      "id": "e45714fb-5983-4f82-b16e-95b0a28a7a87"
-    },
-    {
-      "content": "Los mas bravos",
-      "votes": 0,
-      "id": "18030a13-98c8-44c3-bcf5-2baf2e492b92"
-    },
-    {
-      "content": "Ra ataca sus puntos de vida",
-      "votes": 0,
-      "id": "9674107b-69be-4b3d-aece-940f2e008d9c"
-    },
-    {
-      "content": "Ahora vamos por mas",
-      "votes": 0,
-      "id": "9233fe53-2e18-4adb-ae54-8378e2b2c5aa"
+      "votes": 7
     }
   ]
 }
