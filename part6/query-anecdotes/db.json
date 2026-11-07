@@ -18,12 +18,12 @@
     {
       "id": "a423cf43-b2e6-4538-bae3-cc80cb2f158a",
       "content": "Simplicity is the ultimate sophistication",
-      "votes": 5
+      "votes": 6
     },
     {
       "id": "3a0ad342-224a-453c-80cd-40e2e3ba239b",
       "content": "Real artists ship code",
-      "votes": 7
+      "votes": 8
     },
     {
       "content": "Ole ole ole ole Peru",
@@ -54,6 +54,16 @@
       "content": "Los mas bravos",
       "votes": 0,
       "id": "18030a13-98c8-44c3-bcf5-2baf2e492b92"
+    },
+    {
+      "content": "Ra ataca sus puntos de vida",
+      "votes": 0,
+      "id": "9674107b-69be-4b3d-aece-940f2e008d9c"
+    },
+    {
+      "content": "Ahora vamos por mas",
+      "votes": 0,
+      "id": "9233fe53-2e18-4adb-ae54-8378e2b2c5aa"
     }
   ]
 }

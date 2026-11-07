@@ -1,6 +1,5 @@
-import { createContext, useReducer, useContext } from 'react' 
+import { createContext, useReducer, useContext } from 'react'
 
-// Reducer para manejar el cambio de estado de la notificación
 const notificationReducer = (state, action) => {
   switch (action.type) {
     case 'SET_NOTIFICATION':
@@ -14,27 +13,34 @@ const notificationReducer = (state, action) => {
 
 const NotificationContext = createContext()
 
-// Proveedor del contexto que envuelve la aplicación
 export const NotificationContextProvider = (props) => {
-  const [notification, notificationDispatch] = useReducer(notificationReducer, null)
+  const [notification, dispatch] = useReducer(notificationReducer, null)
 
   return (
-    <NotificationContext.Provider value={[notification, notificationDispatch]}>
+    <NotificationContext.Provider value={[notification, dispatch]}>
       {props.children}
     </NotificationContext.Provider>
   )
 }
 
-// Hook personalizado para LEER el mensaje actual
 export const useNotificationValue = () => {
-  const [notification] = useContext(NotificationContext)
-  return notification
+  const notificationAndDispatch = useContext(NotificationContext)
+  return notificationAndDispatch[0]
 }
 
-// Hook personalizado para DESPACHAR (modificar) el estado
 export const useNotificationDispatch = () => {
-  const [, dispatch] = useContext(NotificationContext)
-  return dispatch
+  const notificationAndDispatch = useContext(NotificationContext)
+  return notificationAndDispatch[1]
 }
 
-export default NotificationContext
+// NUEVO: Hook personalizado useNotify para simplificar las notificaciones con timeout
+export const useNotify = () => {
+  const dispatch = useNotificationDispatch()
+
+  return (message, seconds = 5) => {
+    dispatch({ type: 'SET_NOTIFICATION', payload: message })
+    setTimeout(() => {
+      dispatch({ type: 'CLEAR_NOTIFICATION' })
+    }, seconds * 1000)
+  }
+}

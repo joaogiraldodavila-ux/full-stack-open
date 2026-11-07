@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getAnecdotes, updateAnecdote } from './requests'
 import AnecdoteForm from './components/AnecdoteForm'
-import Notification from './components/Notification' //  Importar el componente
-import { useNotificationDispatch } from './NotificationContext'
+import Notification from './components/Notification'
+import { useNotify } from './NotificationContext' // 👈 Importamos el nuevo hook
 
 const App = () => {
   const queryClient = useQueryClient()
-  const dispatch = useNotificationDispatch()
+  const notify = useNotify() // 👈 Inicializamos el hook
 
   const result = useQuery({
     queryKey: ['anecdotes'],
@@ -18,11 +18,7 @@ const App = () => {
     mutationFn: updateAnecdote,
     onSuccess: (updatedAnecdote) => {
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
-      //  Disparar acción y programar la limpieza a los 5 segundos
-      dispatch({ type: 'SET_NOTIFICATION', payload: `anecdote '${updatedAnecdote.content}' voted` })
-      setTimeout(() => {
-        dispatch({ type: 'CLEAR_NOTIFICATION' })
-      }, 5000)
+      notify(`anecdote '${updatedAnecdote.content}' voted`) // 👈 ¡Una sola línea limpia y directa!
     }
   })
 
@@ -44,7 +40,7 @@ const App = () => {
     <div>
       <h2>Anecdote app</h2>
       
-      <Notification /> {/* Renderizar la notificación aquí */}
+      <Notification />
       <AnecdoteForm />
       
       {anecdotes.map(anecdote =>
