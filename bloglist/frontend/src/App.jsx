@@ -8,6 +8,7 @@ import blogService from "./services/blogs"
 import loginService from "./services/login"
 import Notification from "./components/Notification"
 import BlogForm from "./components/BlogForm"
+import { useNotificationDispatch } from "./context/NotificationContext"
 
 // Componente que se mostrará cuando ocurra un error de renderizado (Ejercicio 9)
 const ErrorFallback = ({ error, resetErrorBoundary }) => {
@@ -24,9 +25,8 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [errorMessage, setErrorMessage] = useState(null)
-  const [successMessage, setSuccessMessage] = useState(null)
 
+  const dispatch = useNotificationDispatch()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -53,8 +53,11 @@ const App = () => {
       setPassword("")
       navigate("/")
     } catch (exception) {
-      setErrorMessage("Wrong username or password")
-      setTimeout(() => setErrorMessage(null), 5000)
+      dispatch({
+        type: "SHOW",
+        payload: { message: "Wrong username or password", type: "error" },
+      })
+      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
     }
   }
 
@@ -68,18 +71,24 @@ const App = () => {
     try {
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
-      setSuccessMessage(
-        `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
-      )
-      setTimeout(() => {
-        setSuccessMessage(null)
-      }, 5000)
+      dispatch({
+        type: "SHOW",
+        payload: {
+          message: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
+          type: "success",
+        },
+      })
+      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
       navigate("/")
     } catch (exception) {
-      setErrorMessage("Wrong credentials or missing fields")
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      dispatch({
+        type: "SHOW",
+        payload: {
+          message: "Wrong credentials or missing fields",
+          type: "error",
+        },
+      })
+      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
     }
   }
 
@@ -103,8 +112,11 @@ const App = () => {
         ),
       )
     } catch (exception) {
-      setErrorMessage("Error updating likes")
-      setTimeout(() => setErrorMessage(null), 5000)
+      dispatch({
+        type: "SHOW",
+        payload: { message: "Error updating likes", type: "error" },
+      })
+      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
     }
   }
 
@@ -118,12 +130,21 @@ const App = () => {
       try {
         await blogService.remove(id)
         setBlogs(blogs.filter((b) => b.id !== id))
-        setSuccessMessage(`Blog ${blogToDelete.title} removed successfully`)
-        setTimeout(() => setSuccessMessage(null), 5000)
+        dispatch({
+          type: "SHOW",
+          payload: {
+            message: `Blog ${blogToDelete.title} removed successfully`,
+            type: "success",
+          },
+        })
+        setTimeout(() => dispatch({ type: "HIDE" }), 5000)
         navigate("/")
       } catch (exception) {
-        setErrorMessage("Error deleting blog")
-        setTimeout(() => setErrorMessage(null), 5000)
+        dispatch({
+          type: "SHOW",
+          payload: { message: "Error deleting blog", type: "error" },
+        })
+        setTimeout(() => dispatch({ type: "HIDE" }), 5000)
       }
     }
   }
@@ -155,8 +176,7 @@ const App = () => {
       {/* 2. El ErrorBoundary envuelve el contenido de la aplicación y las rutas */}
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <h2>blogs</h2>
-        <Notification message={errorMessage} type="error" />
-        <Notification message={successMessage} type="success" />
+        <Notification />
 
         <Routes>
           <Route
