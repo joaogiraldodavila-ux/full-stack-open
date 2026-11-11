@@ -21,7 +21,7 @@ export const useField = (type) => {
   }
 }
 
-// Nuevo hook personalizado 7.5
+// Nuevo hook personalizado
 export const useAnecdotes = () => {
   const [anecdotes, setAnecdotes] = useState([])
 
@@ -31,14 +31,19 @@ export const useAnecdotes = () => {
     })
   }, [])
 
-  // Nueva función para crear y actualizar el estado
   const addAnecdote = async (anecdote) => {
     const newAnecdote = await anecdoteService.createNew(anecdote)
     setAnecdotes(anecdotes.concat(newAnecdote))
   }
 
+  const deleteAnecdote = async (id) => {
+    await anecdoteService.remove(id) // o la implementación con fetch
+    setAnecdotes(anecdotes.filter(a => a.id !== id))
+  }
+
   return {
     anecdotes,
-    addAnecdote
+    addAnecdote,
+    deleteAnecdote
   }
 }
