@@ -12,6 +12,8 @@ import Togglable from "./components/Togglable"
 import { useNotificationDispatch } from "./context/NotificationContext"
 import { useUserValue, useUserDispatch } from "./context/UserContext"
 import UsersView from "./components/UsersView"
+import UserDetail from "./components/UserDetail"
+import BlogDetail from "./components/BlogDetail"
 
 const ErrorFallback = ({ error, resetErrorBoundary }) => {
   return (
@@ -238,6 +240,7 @@ const App = () => {
             </div>
 
             <Routes>
+              {/* Ruta principal para el home / blogs */}
               <Route
                 path="/"
                 element={
@@ -260,7 +263,13 @@ const App = () => {
                   </div>
                 }
               />
+
+              {/* Ruta para la lista de todos los usuarios */}
               <Route path="/users" element={<UsersView />} />
+
+              {/* Ruta dinámica para el detalle de un usuario individual */}
+              <Route path="/users/:id" element={<UserDetail />} />
+              <Route path="/blogs/:id" element={<BlogDetail />} />
             </Routes>
           </div>
         )}
