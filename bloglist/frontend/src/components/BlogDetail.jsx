@@ -1,10 +1,14 @@
+import { useState } from "react"
 import { useParams } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import blogService from "../services/blogs"
 
 const BlogDetail = () => {
   const { id } = useParams()
+  const [commentText, setCommentText] = useState("")
+  const queryClient = useQueryClient()
 
+  // 1. Obtener blogs desde TanStack Query
   const {
     data: blogs,
     isLoading,
@@ -13,6 +17,14 @@ const BlogDetail = () => {
     queryKey: ["blogs"],
     queryFn: blogService.getAll,
     refetchOnWindowFocus: false,
+  })
+
+  // 2. Mutación para agregar un comentario y refrescar la caché de React Query
+  const commentMutation = useMutation({
+    mutationFn: blogService.addComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] })
+    },
   })
 
   if (isLoading) {
@@ -29,8 +41,16 @@ const BlogDetail = () => {
     return null
   }
 
-  // Aseguramos que blog.comments exista o sea un arreglo vacío por defecto
   const comments = blog.comments || []
+
+  // 3. Manejador del envío del formulario
+  const handleAddComment = (event) => {
+    event.preventDefault()
+    if (!commentText.trim()) return
+
+    commentMutation.mutate({ id: blog.id, comment: commentText })
+    setCommentText("")
+  }
 
   return (
     <div>
@@ -47,8 +67,20 @@ const BlogDetail = () => {
       </div>
       <div>added by {blog.user ? blog.user.name : "anonymous"}</div>
 
-      {/* Sección de Comentarios requerida para el Ejercicio 7.19 */}
       <h3>comments</h3>
+
+      {/* Formulario para añadir nuevo comentario */}
+      <form onSubmit={handleAddComment}>
+        <input
+          type="text"
+          value={commentText}
+          onChange={({ target }) => setCommentText(target.value)}
+          placeholder="write a comment..."
+        />
+        <button type="submit">add comment</button>
+      </form>
+
+      {/* Lista de comentarios */}
       <ul>
         {comments.map((comment, index) => (
           <li key={index}>{comment}</li>
