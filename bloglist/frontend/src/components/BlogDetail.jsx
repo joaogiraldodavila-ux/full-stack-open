@@ -52,9 +52,51 @@ const BlogDetail = () => {
     setCommentText("")
   }
 
+  // Estilos visuales mejorados (Ejercicio 7.21)
+  const styles = {
+    container: {
+      padding: "20px",
+      maxWidth: "600px",
+      fontFamily: "Arial, sans-serif",
+    },
+    title: {
+      marginBottom: "10px",
+    },
+    section: {
+      marginTop: "20px",
+    },
+    form: {
+      display: "flex",
+      gap: "10px",
+      marginTop: "10px",
+      marginBottom: "15px",
+    },
+    input: {
+      padding: "8px",
+      borderRadius: "4px",
+      border: "1px solid #ccc",
+      flexGrow: "1",
+    },
+    button: {
+      padding: "8px 15px",
+      backgroundColor: "#007bff",
+      color: "white",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+    },
+    list: {
+      paddingLeft: "20px",
+    },
+    listItem: {
+      marginBottom: "6px",
+      color: "#333",
+    },
+  }
+
   return (
-    <div>
-      <h2>
+    <div style={styles.container}>
+      <h2 style={styles.title}>
         {blog.title} {blog.author}
       </h2>
       <div>
@@ -62,30 +104,37 @@ const BlogDetail = () => {
           {blog.url}
         </a>
       </div>
-      <div>
-        {blog.likes} likes <button>like</button>
+      <div style={{ margin: "10px 0" }}>
+        {blog.likes} likes <button style={{ marginLeft: "5px" }}>like</button>
       </div>
       <div>added by {blog.user ? blog.user.name : "anonymous"}</div>
 
-      <h3>comments</h3>
+      <div style={styles.section}>
+        <h3>comments</h3>
 
-      {/* Formulario para añadir nuevo comentario */}
-      <form onSubmit={handleAddComment}>
-        <input
-          type="text"
-          value={commentText}
-          onChange={({ target }) => setCommentText(target.value)}
-          placeholder="write a comment..."
-        />
-        <button type="submit">add comment</button>
-      </form>
+        {/* Formulario para añadir nuevo comentario */}
+        <form onSubmit={handleAddComment} style={styles.form}>
+          <input
+            type="text"
+            value={commentText}
+            onChange={({ target }) => setCommentText(target.value)}
+            placeholder="write a comment..."
+            style={styles.input}
+          />
+          <button type="submit" style={styles.button}>
+            add comment
+          </button>
+        </form>
 
-      {/* Lista de comentarios */}
-      <ul>
-        {comments.map((comment, index) => (
-          <li key={index}>{comment}</li>
-        ))}
-      </ul>
+        {/* Lista de comentarios */}
+        <ul style={styles.list}>
+          {comments.map((comment, index) => (
+            <li key={index} style={styles.listItem}>
+              {comment}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }

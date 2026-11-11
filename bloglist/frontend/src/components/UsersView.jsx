@@ -15,31 +15,47 @@ const UsersView = () => {
 
   const users = result.data || []
 
+  const styles = {
+    container: {
+      padding: "20px",
+      maxWidth: "800px",
+    },
+    table: {
+      width: "100%",
+      borderCollapse: "collapse",
+      marginTop: "15px",
+    },
+    th: {
+      borderBottom: "2px solid #ccc",
+      padding: "10px",
+      textAlign: "left",
+      backgroundColor: "#f4f4f4",
+    },
+    td: {
+      borderBottom: "1px solid #ddd",
+      padding: "10px",
+    },
+  }
+
   return (
-    <div>
+    <div style={styles.container}>
       <h2>Users</h2>
-      <table>
+      <table style={styles.table}>
         <thead>
           <tr>
-            <th style={{ textAlign: "left", paddingRight: "20px" }}>Name</th>
-            <th style={{ textAlign: "left", paddingRight: "20px" }}>
-              Username
-            </th>
-            <th style={{ textAlign: "left" }}>Blogs created</th>
+            <th style={styles.th}>Name</th>
+            <th style={styles.th}>Username</th>
+            <th style={styles.th}>Blogs created</th>
           </tr>
         </thead>
         <tbody>
           {users.map((user) => (
             <tr key={user.id}>
-              <td style={{ paddingRight: "20px", paddingTop: "10px" }}>
+              <td style={styles.td}>
                 <Link to={`/users/${user.id}`}>{user.name}</Link>
               </td>
-              <td style={{ paddingRight: "20px", paddingTop: "10px" }}>
-                {user.username}
-              </td>
-              <td style={{ paddingTop: "10px" }}>
-                {user.blogs ? user.blogs.length : 0}
-              </td>
+              <td style={styles.td}>{user.username}</td>
+              <td style={styles.td}>{user.blogs.length}</td>
             </tr>
           ))}
         </tbody>
