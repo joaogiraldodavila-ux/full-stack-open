@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react'
 import { useRef } from 'react'
 import { Routes, Route, Link, useNavigate, useMatch } from 'react-router-dom'
+import { ErrorBoundary } from 'react-error-boundary'
 import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
+
+// Componente que se mostrará cuando ocurra un error de renderizado (Ejercicio 9)
+const ErrorFallback = ({ error, resetErrorBoundary }) => {
+  return (
+    <div style={{ padding: '20px' }}>
+      <h2>Something went wrong :(</h2>
+      <p>Please make a bug report to mluukkai in Discord</p>
+    </div>
+  )
+}
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -42,7 +53,7 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
-      navigate('/') // Redirige a la vista principal de blogs tras iniciar sesión
+      navigate('/')
     } catch (exception) {
       setErrorMessage('Wrong username or password')
       setTimeout(() => setErrorMessage(null), 5000)
@@ -52,7 +63,7 @@ const App = () => {
   const handleLogout = () => {
     window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
-    navigate('/') // Redirige a la vista principal al cerrar sesión
+    navigate('/')
   }
 
   const addBlog = async (blogObject) => {
@@ -63,7 +74,7 @@ const App = () => {
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
-      navigate('/') // <--- AGREGA ESTA LÍNEA AQUÍ
+      navigate('/')
     } catch (exception) {
       setErrorMessage('Wrong credentials or missing fields')
       setTimeout(() => {
@@ -86,7 +97,6 @@ const App = () => {
     }
     try {
       const returnedBlog = await blogService.update(id, updatedBlog)
-      // Mantener la estructura original del blog y actualizar solo los likes para preservar la referencia completa del objeto user
       setBlogs(blogs.map(blog => blog.id === id ? { ...blogToLike, likes: returnedBlog.likes } : blog))
     } catch (exception) {
       setErrorMessage('Error updating likes')
@@ -102,18 +112,12 @@ const App = () => {
         setBlogs(blogs.filter(b => b.id !== id))
         setSuccessMessage(`Blog ${blogToDelete.title} removed successfully`)
         setTimeout(() => setSuccessMessage(null), 5000)
-        navigate('/') // <--- AGREGA ESTA LÍNEA AQUÍ
+        navigate('/')
       } catch (exception) {
         setErrorMessage('Error deleting blog')
         setTimeout(() => setErrorMessage(null), 5000)
       }
     }
-  }
-
-  const navStyle = {
-    background: '#d3d3d3',
-    padding: '10px',
-    marginBottom: '15px'
   }
 
   const match = useMatch('/blogs/:id')
@@ -123,7 +127,7 @@ const App = () => {
 
   return (
     <div>
-      {/* Barra de navegación estilizada (Ejercicio 5.30) */}
+      {/* 1. La barra de navegación queda FUERA del ErrorBoundary para que no desaparezca */}
       <div className="navbar">
         <span className="navbar-brand">Blog App</span>
         <div className="navbar-links">
@@ -140,60 +144,63 @@ const App = () => {
         </div>
       </div>
 
-      <h2>blogs</h2>
-      <Notification message={errorMessage} type="error" />
-      <Notification message={successMessage} type="success" />
+      {/* 2. El ErrorBoundary envuelve el contenido de la aplicación y las rutas */}
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <h2>blogs</h2>
+        <Notification message={errorMessage} type="error" />
+        <Notification message={successMessage} type="success" />
 
-      {/* Definición de rutas según el Ejercicio 5.24 */}
-      <Routes>
-        <Route path="/" element={
-          <div>
-            {blogs
-              .slice()
-              .sort((a, b) => b.likes - a.likes)
-              .map(blog =>
-                <Blog
-                  key={blog.id}
-                  blog={blog}
-                  updateLikes={() => likeBlog(blog.id)}
-                  removeBlog={() => deleteBlog(blog.id)}
-                  user={user}
-                />
-              )}
-          </div>
-        } />
+        <Routes>
+          <Route path="/" element={
+             <div>
+              {blogs
+                .slice()
+                .sort((a, b) => b.likes - a.likes)
+                .map(blog =>
+                  <Blog
+                    key={blog.id}
+                    blog={blog}
+                    updateLikes={() => likeBlog(blog.id)}
+                    removeBlog={() => deleteBlog(blog.id)}
+                    user={user}
+                  />
+                )}
+            </div>
+          } />
 
-        <Route path="/login" element={
-      user === null ? (
-        <LoginForm
-          username={username}
-          password={password}
-          handleUsernameChange={({ target }) => setUsername(target.value)}
-          handlePasswordChange={({ target }) => setPassword(target.value)}
-          handleSubmit={handleLogin}
-        />
-      ) : (
-        <div>
-          <p>Ya has iniciado sesión como {user.name}.</p>
-          <button onClick={handleLogout}>logout</button>
-        </div>
-      )
-    } />
-        <Route path="/blogs/:id" element={
-    blogById ? (
-      <div>
-        <h2>{blogById.title} {blogById.author}</h2>
-        <a href={blogById.url} target="_blank" rel="noreferrer">{blogById.url}</a>
-        <div>
-          likes {blogById.likes} <button onClick={() => likeBlog(blogById.id)}>like</button>
-        </div>
-        <div>Added by {blogById.user ? blogById.user.name : 'Unknown'}</div>
-      </div>
-    ) : null
-  } />
+          <Route path="/login" element={
+            user === null ? (
+              <LoginForm
+                username={username}
+                password={password}
+                handleUsernameChange={({ target }) => setUsername(target.value)}
+                handlePasswordChange={({ target }) => setPassword(target.value)}
+                handleSubmit={handleLogin}
+              />
+            ) : (
+              <div>
+                <p>Ya has iniciado sesión como {user.name}.</p>
+                <button onClick={handleLogout}>logout</button>
+              </div>
+            )
+          } />
 
-        <Route path="/create" element={<BlogForm createBlog={addBlog} />} />
-  </Routes>
+          <Route path="/blogs/:id" element={
+            blogById ? (
+              <div>
+                <h2>{blogById.title} {blogById.author}</h2>
+                <a href={blogById.url} target="_blank" rel="noreferrer">{blogById.url}</a>
+                <div>
+                  likes {blogById.likes} <button onClick={() => likeBlog(blogById.id)}>like</button>
+                </div>
+                <div>Added by {blogById.user ? blogById.user.name : 'Unknown'}</div>
+              </div>
+            ) : null
+          } />
+
+          <Route path="/create" element={<BlogForm createBlog={addBlog} />} />
+        </Routes>
+      </ErrorBoundary>
     </div>
   )
 }
