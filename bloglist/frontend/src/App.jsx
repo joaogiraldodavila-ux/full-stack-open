@@ -1,18 +1,18 @@
-import { useState, useEffect } from 'react'
-import { useRef } from 'react'
-import { Routes, Route, Link, useNavigate, useMatch } from 'react-router-dom'
-import { ErrorBoundary } from 'react-error-boundary'
-import Blog from './components/Blog'
-import LoginForm from './components/LoginForm'
-import blogService from './services/blogs'
-import loginService from './services/login'
-import Notification from './components/Notification'
-import BlogForm from './components/BlogForm'
+import { useState, useEffect } from "react"
+import { useRef } from "react"
+import { Routes, Route, Link, useNavigate, useMatch } from "react-router-dom"
+import { ErrorBoundary } from "react-error-boundary"
+import Blog from "./components/Blog"
+import LoginForm from "./components/LoginForm"
+import blogService from "./services/blogs"
+import loginService from "./services/login"
+import Notification from "./components/Notification"
+import BlogForm from "./components/BlogForm"
 
 // Componente que se mostrará cuando ocurra un error de renderizado (Ejercicio 9)
 const ErrorFallback = ({ error, resetErrorBoundary }) => {
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: "20px" }}>
       <h2>Something went wrong :(</h2>
       <p>Please make a bug report to mluukkai in Discord</p>
     </div>
@@ -22,21 +22,19 @@ const ErrorFallback = ({ error, resetErrorBoundary }) => {
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
   const [errorMessage, setErrorMessage] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
-  
+
   const navigate = useNavigate()
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs(blogs)
-    )
+    blogService.getAll().then((blogs) => setBlogs(blogs))
   }, [])
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
+    const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser")
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
@@ -48,35 +46,37 @@ const App = () => {
     event.preventDefault()
     try {
       const user = await loginService.login({ username, password })
-      window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
+      window.localStorage.setItem("loggedBlogAppUser", JSON.stringify(user))
       blogService.setToken(user.token)
       setUser(user)
-      setUsername('')
-      setPassword('')
-      navigate('/')
+      setUsername("")
+      setPassword("")
+      navigate("/")
     } catch (exception) {
-      setErrorMessage('Wrong username or password')
+      setErrorMessage("Wrong username or password")
       setTimeout(() => setErrorMessage(null), 5000)
     }
   }
 
   const handleLogout = () => {
-    window.localStorage.removeItem('loggedBlogAppUser')
+    window.localStorage.removeItem("loggedBlogAppUser")
     setUser(null)
-    navigate('/')
+    navigate("/")
   }
 
   const addBlog = async (blogObject) => {
     try {
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
-      setSuccessMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
+      setSuccessMessage(
+        `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
+      )
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
-      navigate('/')
+      navigate("/")
     } catch (exception) {
-      setErrorMessage('Wrong credentials or missing fields')
+      setErrorMessage("Wrong credentials or missing fields")
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
@@ -89,40 +89,48 @@ const App = () => {
       return
     }
 
-    const blogToLike = blogs.find(b => b.id === id)
+    const blogToLike = blogs.find((b) => b.id === id)
     const updatedBlog = {
       ...blogToLike,
       likes: blogToLike.likes + 1,
-      user: blogToLike.user ? blogToLike.user.id : null
+      user: blogToLike.user ? blogToLike.user.id : null,
     }
     try {
       const returnedBlog = await blogService.update(id, updatedBlog)
-      setBlogs(blogs.map(blog => blog.id === id ? { ...blogToLike, likes: returnedBlog.likes } : blog))
+      setBlogs(
+        blogs.map((blog) =>
+          blog.id === id ? { ...blogToLike, likes: returnedBlog.likes } : blog,
+        ),
+      )
     } catch (exception) {
-      setErrorMessage('Error updating likes')
+      setErrorMessage("Error updating likes")
       setTimeout(() => setErrorMessage(null), 5000)
     }
   }
 
   const deleteBlog = async (id) => {
-    const blogToDelete = blogs.find(b => b.id === id)
-    if (window.confirm(`Remove blog ${blogToDelete.title} by ${blogToDelete.author}?`)) {
+    const blogToDelete = blogs.find((b) => b.id === id)
+    if (
+      window.confirm(
+        `Remove blog ${blogToDelete.title} by ${blogToDelete.author}?`,
+      )
+    ) {
       try {
         await blogService.remove(id)
-        setBlogs(blogs.filter(b => b.id !== id))
+        setBlogs(blogs.filter((b) => b.id !== id))
         setSuccessMessage(`Blog ${blogToDelete.title} removed successfully`)
         setTimeout(() => setSuccessMessage(null), 5000)
-        navigate('/')
+        navigate("/")
       } catch (exception) {
-        setErrorMessage('Error deleting blog')
+        setErrorMessage("Error deleting blog")
         setTimeout(() => setErrorMessage(null), 5000)
       }
     }
   }
 
-  const match = useMatch('/blogs/:id')
+  const match = useMatch("/blogs/:id")
   const blogById = match
-    ? blogs.find(blog => blog.id === match.params.id)
+    ? blogs.find((blog) => blog.id === match.params.id)
     : null
 
   return (
@@ -132,7 +140,7 @@ const App = () => {
         <span className="navbar-brand">Blog App</span>
         <div className="navbar-links">
           <Link to="/">blogs</Link>
-          <button onClick={() => navigate('/create')}>new blog</button>
+          <button onClick={() => navigate("/create")}>new blog</button>
           {user === null ? (
             <Link to="/login">login</Link>
           ) : (
@@ -151,61 +159,84 @@ const App = () => {
         <Notification message={successMessage} type="success" />
 
         <Routes>
-          <Route path="/" element={
-            <div>
-              {blogs
-                .slice()
-                .sort((a, b) => b.likes - a.likes)
-                .map(blog =>
-                  <Blog
-                    key={blog.id}
-                    blog={blog}
-                    updateLikes={() => likeBlog(blog.id)}
-                    removeBlog={() => deleteBlog(blog.id)}
-                    user={user}
-                  />
-                )}
-            </div>
-          } />
-
-          <Route path="/login" element={
-            user === null ? (
-              <LoginForm
-                username={username}
-                password={password}
-                handleUsernameChange={({ target }) => setUsername(target.value)}
-                handlePasswordChange={({ target }) => setPassword(target.value)}
-                handleSubmit={handleLogin}
-              />
-            ) : (
+          <Route
+            path="/"
+            element={
               <div>
-                <p>Ya has iniciado sesión como {user.name}.</p>
-                <button onClick={handleLogout}>logout</button>
+                {blogs
+                  .slice()
+                  .sort((a, b) => b.likes - a.likes)
+                  .map((blog) => (
+                    <Blog
+                      key={blog.id}
+                      blog={blog}
+                      updateLikes={() => likeBlog(blog.id)}
+                      removeBlog={() => deleteBlog(blog.id)}
+                      user={user}
+                    />
+                  ))}
               </div>
-            )
-          } />
+            }
+          />
 
-          <Route path="/blogs/:id" element={
-            blogById ? (
-              <div>
-                <h2>{blogById.title} {blogById.author}</h2>
-                <a href={blogById.url} target="_blank" rel="noreferrer">{blogById.url}</a>
+          <Route
+            path="/login"
+            element={
+              user === null ? (
+                <LoginForm
+                  username={username}
+                  password={password}
+                  handleUsernameChange={({ target }) =>
+                    setUsername(target.value)
+                  }
+                  handlePasswordChange={({ target }) =>
+                    setPassword(target.value)
+                  }
+                  handleSubmit={handleLogin}
+                />
+              ) : (
                 <div>
-                  likes {blogById.likes} <button onClick={() => likeBlog(blogById.id)}>like</button>
+                  <p>Ya has iniciado sesión como {user.name}.</p>
+                  <button onClick={handleLogout}>logout</button>
                 </div>
-                <div>Added by {blogById.user ? blogById.user.name : 'Unknown'}</div>
-              </div>
-            ) : null
-          } />
+              )
+            }
+          />
+
+          <Route
+            path="/blogs/:id"
+            element={
+              blogById ? (
+                <div>
+                  <h2>
+                    {blogById.title} {blogById.author}
+                  </h2>
+                  <a href={blogById.url} target="_blank" rel="noreferrer">
+                    {blogById.url}
+                  </a>
+                  <div>
+                    likes {blogById.likes}{" "}
+                    <button onClick={() => likeBlog(blogById.id)}>like</button>
+                  </div>
+                  <div>
+                    Added by {blogById.user ? blogById.user.name : "Unknown"}
+                  </div>
+                </div>
+              ) : null
+            }
+          />
 
           <Route path="/create" element={<BlogForm createBlog={addBlog} />} />
 
           {/* NUEVA RUTA SPLAT PARA MANEJAR URLS INEXISTENTES (Ejercicio 10) */}
-          <Route path="*" element={
-            <div>
-              <h2>404 – Page not found</h2>
-            </div>
-          } />
+          <Route
+            path="*"
+            element={
+              <div>
+                <h2>404 – Page not found</h2>
+              </div>
+            }
+          />
         </Routes>
       </ErrorBoundary>
     </div>
