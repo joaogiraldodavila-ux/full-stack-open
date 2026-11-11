@@ -29,6 +29,9 @@ const BlogDetail = () => {
     return null
   }
 
+  // Aseguramos que blog.comments exista o sea un arreglo vacío por defecto
+  const comments = blog.comments || []
+
   return (
     <div>
       <h2>
@@ -43,6 +46,14 @@ const BlogDetail = () => {
         {blog.likes} likes <button>like</button>
       </div>
       <div>added by {blog.user ? blog.user.name : "anonymous"}</div>
+
+      {/* Sección de Comentarios requerida para el Ejercicio 7.19 */}
+      <h3>comments</h3>
+      <ul>
+        {comments.map((comment, index) => (
+          <li key={index}>{comment}</li>
+        ))}
+      </ul>
     </div>
   )
 }
