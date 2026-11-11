@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useRef } from "react"
 import { Routes, Route, Link, useNavigate, useMatch } from "react-router-dom"
 import { ErrorBoundary } from "react-error-boundary"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import Blog from "./components/Blog"
 import LoginForm from "./components/LoginForm"
 import blogService from "./services/blogs"
@@ -21,18 +22,24 @@ const ErrorFallback = ({ error, resetErrorBoundary }) => {
 }
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
 
   const dispatch = useNotificationDispatch()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
-  }, [])
+  // 1. Obtener los blogs usando TanStack Query (useQuery)
+  const result = useQuery({
+    queryKey: ["blogs"],
+    queryFn: blogService.getAll,
+    refetchOnWindowFocus: false,
+  })
 
+  const blogs = result.data || []
+
+  // 2. Mantener la sesión del usuario al recargar la página
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogAppUser")
     if (loggedUserJSON) {
@@ -41,6 +48,73 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
+
+  // 3. Mutación para crear un nuevo blog
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: (returnedBlog) => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] })
+      dispatch({
+        type: "SHOW",
+        payload: {
+          message: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
+          type: "success",
+        },
+      })
+      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
+      navigate("/")
+    },
+    onError: () => {
+      dispatch({
+        type: "SHOW",
+        payload: {
+          message: "Wrong credentials or missing fields",
+          type: "error",
+        },
+      })
+      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
+    },
+  })
+
+  // 4. Mutación para actualizar likes
+  const updateBlogMutation = useMutation({
+    mutationFn: ({ id, updatedBlog }) => blogService.update(id, updatedBlog),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] })
+    },
+    onError: () => {
+      dispatch({
+        type: "SHOW",
+        payload: { message: "Error updating likes", type: "error" },
+      })
+      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
+    },
+  })
+
+  // 5. Mutación para eliminar un blog
+  const deleteBlogMutation = useMutation({
+    mutationFn: (id) => blogService.remove(id),
+    onSuccess: (data, id) => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] })
+      const blogToDelete = blogs.find((b) => b.id === id)
+      dispatch({
+        type: "SHOW",
+        payload: {
+          message: `Blog ${blogToDelete ? blogToDelete.title : ""} removed successfully`,
+          type: "success",
+        },
+      })
+      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
+      navigate("/")
+    },
+    onError: () => {
+      dispatch({
+        type: "SHOW",
+        payload: { message: "Error deleting blog", type: "error" },
+      })
+      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
+    },
+  })
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -68,28 +142,7 @@ const App = () => {
   }
 
   const addBlog = async (blogObject) => {
-    try {
-      const returnedBlog = await blogService.create(blogObject)
-      setBlogs(blogs.concat(returnedBlog))
-      dispatch({
-        type: "SHOW",
-        payload: {
-          message: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
-          type: "success",
-        },
-      })
-      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
-      navigate("/")
-    } catch (exception) {
-      dispatch({
-        type: "SHOW",
-        payload: {
-          message: "Wrong credentials or missing fields",
-          type: "error",
-        },
-      })
-      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
-    }
+    newBlogMutation.mutate(blogObject)
   }
 
   const likeBlog = async (id) => {
@@ -104,48 +157,17 @@ const App = () => {
       likes: blogToLike.likes + 1,
       user: blogToLike.user ? blogToLike.user.id : null,
     }
-    try {
-      const returnedBlog = await blogService.update(id, updatedBlog)
-      setBlogs(
-        blogs.map((blog) =>
-          blog.id === id ? { ...blogToLike, likes: returnedBlog.likes } : blog,
-        ),
-      )
-    } catch (exception) {
-      dispatch({
-        type: "SHOW",
-        payload: { message: "Error updating likes", type: "error" },
-      })
-      setTimeout(() => dispatch({ type: "HIDE" }), 5000)
-    }
+    updateBlogMutation.mutate({ id, updatedBlog })
   }
 
   const deleteBlog = async (id) => {
     const blogToDelete = blogs.find((b) => b.id === id)
     if (
       window.confirm(
-        `Remove blog ${blogToDelete.title} by ${blogToDelete.author}?`,
+        `Remove blog ${blogToDelete ? blogToDelete.title : ""} by ${blogToDelete.author}?`,
       )
     ) {
-      try {
-        await blogService.remove(id)
-        setBlogs(blogs.filter((b) => b.id !== id))
-        dispatch({
-          type: "SHOW",
-          payload: {
-            message: `Blog ${blogToDelete.title} removed successfully`,
-            type: "success",
-          },
-        })
-        setTimeout(() => dispatch({ type: "HIDE" }), 5000)
-        navigate("/")
-      } catch (exception) {
-        dispatch({
-          type: "SHOW",
-          payload: { message: "Error deleting blog", type: "error" },
-        })
-        setTimeout(() => dispatch({ type: "HIDE" }), 5000)
-      }
+      deleteBlogMutation.mutate(id)
     }
   }
 
@@ -153,6 +175,15 @@ const App = () => {
   const blogById = match
     ? blogs.find((blog) => blog.id === match.params.id)
     : null
+
+  // Manejo de estado de carga inicial de TanStack Query
+  if (result.isLoading) {
+    return <div>loading data...</div>
+  }
+
+  if (result.isError) {
+    return <div>blog service not available due to problems in server</div>
+  }
 
   return (
     <div>
@@ -248,7 +279,7 @@ const App = () => {
 
           <Route path="/create" element={<BlogForm createBlog={addBlog} />} />
 
-          {/* NUEVA RUTA SPLAT PARA MANEJAR URLS INEXISTENTES (Ejercicio 10) */}
+          {/* RUTA SPLAT PARA MANEJAR URLS INEXISTENTES (Ejercicio 10) */}
           <Route
             path="*"
             element={
