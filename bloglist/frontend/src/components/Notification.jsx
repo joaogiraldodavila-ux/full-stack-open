@@ -7,16 +7,22 @@ const Notification = () => {
     return null
   }
 
+  // Soportar tanto si se envía un string como un objeto { message, isError }
   const message =
-    typeof notification === "object" ? notification.message : notification
-  const styleType =
-    typeof notification === "object" && notification.type === "error"
-      ? "error"
-      : "success"
-  const className =
-    styleType === "error" ? "notification error" : "notification success"
+    typeof notification === "string" ? notification : notification.message
+  const isError = typeof notification === "object" && notification.isError
 
-  return <div className={className}>{message}</div>
+  const style = {
+    color: isError ? "red" : "green",
+    background: "lightgrey",
+    fontSize: 18,
+    borderStyle: "solid",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+  }
+
+  return <div style={style}>{message}</div>
 }
 
 export default Notification

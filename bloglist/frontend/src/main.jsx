@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import App from "./App"
 import "./index.css"
 import { NotificationContextProvider } from "./context/NotificationContext"
+import { UserContextProvider } from "./context/UserContext"
 
 // Creamos una instancia de QueryClient
 const queryClient = new QueryClient()
@@ -12,9 +13,11 @@ const queryClient = new QueryClient()
 ReactDOM.createRoot(document.getElementById("root")).render(
   <QueryClientProvider client={queryClient}>
     <NotificationContextProvider>
-      <Router>
-        <App />
-      </Router>
+      <UserContextProvider>
+        <Router>
+          <App />
+        </Router>
+      </UserContextProvider>
     </NotificationContextProvider>
   </QueryClientProvider>,
 )

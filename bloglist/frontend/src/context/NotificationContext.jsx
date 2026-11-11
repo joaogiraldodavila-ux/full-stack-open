@@ -1,11 +1,10 @@
 import { createContext, useReducer, useContext } from "react"
 
-// Reducer para manejar las acciones de la notificación
 const notificationReducer = (state, action) => {
   switch (action.type) {
-    case "SHOW":
-      return action.payload // payload será el texto del mensaje
-    case "HIDE":
+    case "SET":
+      return action.payload // Puede ser un texto o un objeto { message, isError }
+    case "CLEAR":
       return null
     default:
       return state
@@ -14,25 +13,24 @@ const notificationReducer = (state, action) => {
 
 const NotificationContext = createContext()
 
-export const NotificationContextProvider = ({ children }) => {
+export const NotificationContextProvider = (props) => {
   const [notification, dispatch] = useReducer(notificationReducer, null)
 
   return (
     <NotificationContext.Provider value={[notification, dispatch]}>
-      {children}
+      {props.children}
     </NotificationContext.Provider>
   )
 }
 
-// Hook personalizado para usar la notificación fácilmente en cualquier componente
 export const useNotificationValue = () => {
-  const notificationAndDispatch = useContext(NotificationContext)
-  return notificationAndDispatch[0]
+  const context = useContext(NotificationContext)
+  return context[0]
 }
 
 export const useNotificationDispatch = () => {
-  const notificationAndDispatch = useContext(NotificationContext)
-  return notificationAndDispatch[1]
+  const context = useContext(NotificationContext)
+  return context[1]
 }
 
 export default NotificationContext
