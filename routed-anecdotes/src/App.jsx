@@ -8,13 +8,7 @@ import Footer from './components/Footer'
 import CreateNew from './components/CreateNew'
 
 const App = () => {
-  // Obtenemos las anécdotas directamente desde el nuevo custom hook
-  const { anecdotes } = useAnecdotes()
-
-  const addAnecdote = (anecdote) => {
-    // Función temporal para evitar errores en este ejercicio (se implementará en el próximo)
-    console.log(anecdote)
-  }
+  const { anecdotes, addAnecdote } = useAnecdotes()
 
   return (
     <Router>

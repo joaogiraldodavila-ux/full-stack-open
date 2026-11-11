@@ -21,7 +21,7 @@ export const useField = (type) => {
   }
 }
 
-// Nuevo hook personalizado para el ejercicio 7.4
+// Nuevo hook personalizado 7.5
 export const useAnecdotes = () => {
   const [anecdotes, setAnecdotes] = useState([])
 
@@ -31,8 +31,14 @@ export const useAnecdotes = () => {
     })
   }, [])
 
+  // Nueva función para crear y actualizar el estado
+  const addAnecdote = async (anecdote) => {
+    const newAnecdote = await anecdoteService.createNew(anecdote)
+    setAnecdotes(anecdotes.concat(newAnecdote))
+  }
+
   return {
-    anecdotes
-    // Más adelante en el siguiente ejercicio ampliaremos esto para manejar la creación
+    anecdotes,
+    addAnecdote
   }
 }
