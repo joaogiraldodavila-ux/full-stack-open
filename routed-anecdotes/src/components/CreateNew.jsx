@@ -19,23 +19,36 @@ const CreateNew = ({ addAnecdote }) => {
     navigate('/')
   }
 
+  // Función para resetear todos los campos a la vez
+  const handleReset = () => {
+    content.reset()
+    author.reset()
+    info.reset()
+  }
+
+  // Extraemos la propiedad 'reset' para que no pase al input nativo y evitemos la advertencia
+  const { reset: resetContent, ...contentWithoutReset } = content
+  const { reset: resetAuthor, ...authorWithoutReset } = author
+  const { reset: resetInfo, ...infoWithoutReset } = info
+
   return (
     <div>
       <h2>create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input {...content} />
+          <input {...contentWithoutReset} />
         </div>
         <div>
           author
-          <input {...author} />
+          <input {...authorWithoutReset} />
         </div>
         <div>
           url for more info
-          <input {...info} />
+          <input {...infoWithoutReset} />
         </div>
-        <button>create</button>
+        <button type="submit">create</button>
+        <button type="button" onClick={handleReset}>reset</button>
       </form>
     </div>
   )
