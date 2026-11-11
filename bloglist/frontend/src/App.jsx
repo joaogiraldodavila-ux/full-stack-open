@@ -152,7 +152,7 @@ const App = () => {
 
         <Routes>
           <Route path="/" element={
-             <div>
+            <div>
               {blogs
                 .slice()
                 .sort((a, b) => b.likes - a.likes)
@@ -199,6 +199,13 @@ const App = () => {
           } />
 
           <Route path="/create" element={<BlogForm createBlog={addBlog} />} />
+
+          {/* NUEVA RUTA SPLAT PARA MANEJAR URLS INEXISTENTES (Ejercicio 10) */}
+          <Route path="*" element={
+            <div>
+              <h2>404 – Page not found</h2>
+            </div>
+          } />
         </Routes>
       </ErrorBoundary>
     </div>
