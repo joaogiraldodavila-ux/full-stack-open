@@ -14,11 +14,12 @@ import { useUserValue, useUserDispatch } from "./context/UserContext"
 import UsersView from "./components/UsersView"
 import UserDetail from "./components/UserDetail"
 import BlogDetail from "./components/BlogDetail"
+import persistentUser from "./services/persistentUser"
 
 const ErrorFallback = ({ error, resetErrorBoundary }) => {
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Something went wrong :(</h2>
+      <h2>Something went wrong</h2>
       <p>Please make a bug report to mluukkai in Discord</p>
     </div>
   )
@@ -50,7 +51,6 @@ const App = () => {
       const blogs = queryClient.getQueryData(["blogs"]) || []
       queryClient.setQueryData(["blogs"], blogs.concat(newBlog))
 
-      // DISPARAR NOTIFICACIÓN DE CREACIÓN
       dispatch({
         type: "SET",
         payload: {
@@ -78,7 +78,6 @@ const App = () => {
     onSuccess: (updatedBlog) => {
       queryClient.invalidateQueries({ queryKey: ["blogs"] })
 
-      // DISPARAR NOTIFICACIÓN DE LIKE
       dispatch({
         type: "SET",
         payload: {
@@ -96,7 +95,6 @@ const App = () => {
     onSuccess: (_, deletedId) => {
       queryClient.invalidateQueries({ queryKey: ["blogs"] })
 
-      // DISPARAR NOTIFICACIÓN DE ELIMINACIÓN
       dispatch({
         type: "SET",
         payload: {
@@ -112,10 +110,8 @@ const App = () => {
     event.preventDefault()
     try {
       const loggedUser = await loginService.login({ username, password })
-      window.localStorage.setItem(
-        "loggedBlogappUser",
-        JSON.stringify(loggedUser),
-      )
+
+      persistentUser.saveUser(loggedUser)
       blogService.setToken(loggedUser.token)
 
       userDispatch({ type: "SET_USER", payload: loggedUser })
@@ -143,7 +139,7 @@ const App = () => {
   }
 
   const handleLogout = () => {
-    window.localStorage.removeItem("loggedBlogappUser")
+    persistentUser.removeUser()
     blogService.setToken(null)
     userDispatch({ type: "CLEAR_USER" })
     dispatch({
@@ -159,41 +155,17 @@ const App = () => {
   }
 
   const likeBlog = (blog) => {
-    console.log("Se hizo clic en like para el blog:", blog.title)
     const updatedBlog = {
       ...blog,
       likes: blog.likes + 1,
       user: blog.user.id || blog.user,
     }
-    updateBlogMutation.mutate(
-      { id: blog.id, newObject: updatedBlog },
-      {
-        onSuccess: () => {
-          dispatch({
-            type: "SET",
-            payload: { message: `you liked '${blog.title}'`, isError: false },
-          })
-          setTimeout(() => dispatch({ type: "CLEAR" }), 5000)
-        },
-      },
-    )
+    updateBlogMutation.mutate({ id: blog.id, newObject: updatedBlog })
   }
 
   const deleteBlog = (blog) => {
-    console.log("Se hizo clic en eliminar para el blog:", blog.title)
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
-      deleteBlogMutation.mutate(blog.id, {
-        onSuccess: () => {
-          dispatch({
-            type: "SET",
-            payload: {
-              message: `Blog ${blog.title} removed successfully`,
-              isError: false,
-            },
-          })
-          setTimeout(() => dispatch({ type: "CLEAR" }), 5000)
-        },
-      })
+      deleteBlogMutation.mutate(blog.id)
     }
   }
 
@@ -215,66 +187,79 @@ const App = () => {
   }
 
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <div className="container" style={{ padding: "10px 20px" }}>
-        <h2>Blog App</h2>
-        <Notification />
+    <div className="container" style={{ padding: "10px 20px" }}>
+      <h2>blogs</h2>
+      <Notification />
 
-        {!user ? (
-          <LoginForm
-            username={username}
-            password={password}
-            handleUsernameChange={({ target }) => setUsername(target.value)}
-            handlePasswordChange={({ target }) => setPassword(target.value)}
-            handleSubmit={handleLogin}
-          />
-        ) : (
-          <div>
-            <div style={navStyle}>
-              <Link to="/">Blogs</Link>
-              <Link to="/users">Users</Link>
-              <span>
-                <strong>{user.name}</strong> logged in{" "}
-              </span>
-              <button onClick={handleLogout}>logout</button>
-            </div>
-
-            <Routes>
-              {/* Ruta principal para el home / blogs */}
-              <Route
-                path="/"
-                element={
-                  <div>
-                    <Togglable buttonLabel="new blog" ref={blogFormRef}>
-                      <BlogForm createBlog={addBlog} />
-                    </Togglable>
-
-                    <div style={{ marginTop: "20px" }}>
-                      {sortedBlogs.map((blog) => (
-                        <Blog
-                          key={blog.id}
-                          blog={blog}
-                          likeBlog={likeBlog}
-                          deleteBlog={deleteBlog}
-                          user={user}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                }
-              />
-
-              {/* Ruta para la lista de todos los usuarios */}
-              <Route path="/users" element={<UsersView />} />
-
-              {/* Ruta dinámica para el detalle de un usuario individual */}
-              <Route path="/users/:id" element={<UserDetail />} />
-              <Route path="/blogs/:id" element={<BlogDetail />} />
-            </Routes>
-          </div>
+      {/* Barra de navegación siempre visible y fuera del ErrorBoundary */}
+      <div style={navStyle}>
+        <Link to="/">blogs</Link>
+        <Link to="/users">users</Link>
+        {user && (
+          <>
+            <span>
+              <strong>{user.name}</strong> logged in{" "}
+            </span>
+            <button onClick={handleLogout}>logout</button>
+          </>
         )}
       </div>
-    </ErrorBoundary>
+
+      {/* ErrorBoundary envolviendo únicamente a las rutas */}
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              !user ? (
+                <LoginForm
+                  username={username}
+                  password={password}
+                  handleUsernameChange={({ target }) =>
+                    setUsername(target.value)
+                  }
+                  handlePasswordChange={({ target }) =>
+                    setPassword(target.value)
+                  }
+                  handleSubmit={handleLogin}
+                />
+              ) : (
+                <div>
+                  <Togglable buttonLabel="new blog" ref={blogFormRef}>
+                    <BlogForm createBlog={addBlog} />
+                  </Togglable>
+
+                  <div style={{ marginTop: "20px" }}>
+                    {sortedBlogs.map((blog) => (
+                      <Blog
+                        key={blog.id}
+                        blog={blog}
+                        likeBlog={likeBlog}
+                        deleteBlog={deleteBlog}
+                        user={user}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+          />
+          <Route path="/users" element={<UsersView />} />
+          <Route path="/users/:id" element={<UserDetail />} />
+          <Route path="/blogs/:id" element={<BlogDetail />} />
+          <Route
+            path="*"
+            element={
+              <div style={{ padding: "20px" }}>
+                <h2>Page not found</h2>
+                <p>The route you are looking for does not exist.</p>
+                <Link to="/">Go back home</Link>
+              </div>
+            }
+          />
+        </Routes>
+      </ErrorBoundary>
+    </div>
   )
 }
 

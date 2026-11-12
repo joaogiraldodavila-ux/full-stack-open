@@ -10,7 +10,7 @@ const BlogDetail = () => {
 
   // 1. Obtener blogs desde TanStack Query
   const {
-    data: blogs,
+    data: blogs = [],
     isLoading,
     isError,
   } = useQuery({
@@ -19,7 +19,7 @@ const BlogDetail = () => {
     refetchOnWindowFocus: false,
   })
 
-  // 2. Mutación para agregar un comentario y refrescar la caché de React Query
+  // 2. Mutación para agregar un comentario
   const commentMutation = useMutation({
     mutationFn: blogService.addComment,
     onSuccess: () => {
@@ -37,8 +37,8 @@ const BlogDetail = () => {
 
   const blog = blogs.find((b) => b.id === id)
 
-  if (!blog) {
-    return null
+  if (!blog || !blog.user) {
+    throw new Error("Something went wrong")
   }
 
   const comments = blog.comments || []
@@ -52,7 +52,7 @@ const BlogDetail = () => {
     setCommentText("")
   }
 
-  // Estilos visuales mejorados (Ejercicio 7.21)
+  // Estilos visuales mejorados
   const styles = {
     container: {
       padding: "20px",

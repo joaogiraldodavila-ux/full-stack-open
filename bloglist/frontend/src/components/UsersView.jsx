@@ -43,8 +43,7 @@ const UsersView = () => {
       <table style={styles.table}>
         <thead>
           <tr>
-            <th style={styles.th}>Name</th>
-            <th style={styles.th}>Username</th>
+            <th style={styles.th}></th>
             <th style={styles.th}>Blogs created</th>
           </tr>
         </thead>
@@ -54,7 +53,6 @@ const UsersView = () => {
               <td style={styles.td}>
                 <Link to={`/users/${user.id}`}>{user.name}</Link>
               </td>
-              <td style={styles.td}>{user.username}</td>
               <td style={styles.td}>{user.blogs.length}</td>
             </tr>
           ))}

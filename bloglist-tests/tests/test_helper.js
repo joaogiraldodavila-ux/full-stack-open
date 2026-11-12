@@ -1,6 +1,6 @@
-const SERVER_URL = 'http://localhost:3001'
+const SERVER_URL = "http://localhost:3001"
 
-export const resetDatabase = async request => {
+export const resetDatabase = async (request) => {
   await request.post(`${SERVER_URL}/api/testing/reset`)
 }
 
@@ -10,7 +10,9 @@ export const createUser = async (request, user) => {
 }
 
 export const apiLogin = async (request, credentials) => {
-  const response = await request.post(`${SERVER_URL}/api/login`, { data: credentials })
+  const response = await request.post(`${SERVER_URL}/api/login`, {
+    data: credentials,
+  })
   return response.json()
 }
 
@@ -23,19 +25,18 @@ export const createBlogViaApi = async (request, token, blog) => {
 }
 
 export const login = async (page, { username, password }) => {
-  await page.getByRole('link', { name: 'login', exact: true }).click()
-  const inputs = page.locator('form input')
+  const inputs = page.locator("form input")
   await inputs.nth(0).fill(username)
   await inputs.nth(1).fill(password)
-  await page.getByRole('button', { name: 'login' }).click()
-  await page.getByRole('button', { name: 'logout' }).waitFor()
+  await page.getByRole("button", { name: "login" }).click()
+  await page.getByRole("button", { name: "logout" }).waitFor()
 }
 
 export const createBlog = async (page, { title, author, url }) => {
-  await page.getByRole('link', { name: 'new blog', exact: true }).click()
-  const inputs = page.locator('form input')
+  await page.getByRole("link", { name: "new blog", exact: true }).click()
+  const inputs = page.locator("form input")
   await inputs.nth(0).fill(title)
   await inputs.nth(1).fill(author)
   await inputs.nth(2).fill(url)
-  await page.getByRole('button', { name: 'create' }).click()
+  await page.getByRole("button", { name: "create" }).click()
 }

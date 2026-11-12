@@ -1,4 +1,5 @@
 import { createContext, useReducer, useEffect, useContext } from "react"
+import persistentUser from "../services/persistentUser"
 import blogService from "../services/blogs"
 
 const userReducer = (state, action) => {
@@ -17,13 +18,11 @@ const UserContext = createContext()
 export const UserContextProvider = (props) => {
   const [user, userDispatch] = useReducer(userReducer, null)
 
-  // Cargar usuario y configurar el token en el servicio al iniciar la app
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser")
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      userDispatch({ type: "SET_USER", payload: user })
-      blogService.setToken(user.token) // <-- ESTO ES CLAVE
+    const loggedUser = persistentUser.getUser()
+    if (loggedUser) {
+      userDispatch({ type: "SET_USER", payload: loggedUser })
+      blogService.setToken(loggedUser.token)
     }
   }, [])
 
